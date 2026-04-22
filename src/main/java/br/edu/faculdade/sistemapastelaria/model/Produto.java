@@ -8,7 +8,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
@@ -32,12 +31,8 @@ public class Produto {
     private BigDecimal preco;
     private boolean disponivel;
 
-    @OneToMany(mappedBy = "produto")
-    @JoinColumn(name = "item_pedido_id")
-    private List<ItemPedido> itensPedido;
-
     @OneToMany(mappedBy = "produto", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ItemPedido> itemPedido = new ArrayList<>();
+    private List<ItemPedido> itensPedido = new ArrayList<>();
 
     public Produto(Long id, String nome, String descricao, String categoria, BigDecimal preco, boolean disponivel) {
         this.nome = nome;
