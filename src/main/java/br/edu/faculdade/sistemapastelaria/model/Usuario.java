@@ -21,8 +21,7 @@ public class Usuario {
     private String senha;
     private boolean ativo;
 
-    public Usuario(long id, String nome, String login, String senha, boolean ativo) {
-        this.id = id;
+    public Usuario(String nome, String login, String senha, boolean ativo) {
         this.nome = nome;
         this.login = login;
         this.senha = senha;
