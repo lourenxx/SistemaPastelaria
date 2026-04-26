@@ -3,6 +3,7 @@ package br.edu.faculdade.sistemapastelaria.service;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -13,17 +14,19 @@ import br.edu.faculdade.sistemapastelaria.repository.UsuarioRepository;
 @Service
 public class UsuarioService {
 
+    private final PasswordEncoder passwordEncoder;
     private final UsuarioRepository usuarioRepository;
 
-    public UsuarioService(UsuarioRepository usuarioRepository) {
+    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public UsuarioDTO salvarUsuario(UsuarioDTO usuarioDto) {
         Usuario usuario = new Usuario();
         usuario.setNome(usuarioDto.getNome().toUpperCase());
         usuario.setLogin(usuarioDto.getLogin().toLowerCase());
-        usuario.setSenha(usuarioDto.getSenha().toLowerCase());
+        usuario.setSenha(passwordEncoder.encode(usuarioDto.getSenha()));
         usuario.setAtivo(true);
         usuarioRepository.save(usuario);
 
@@ -40,7 +43,7 @@ public class UsuarioService {
 
         usuario.setNome(usuarioDto.getNome().toUpperCase());
         usuario.setLogin(usuarioDto.getLogin().toLowerCase());
-        usuario.setSenha(usuarioDto.getSenha().toLowerCase());
+        usuario.setSenha(passwordEncoder.encode(usuarioDto.getSenha()));
         usuarioRepository.save(usuario);
 
         return new UsuarioDTO(
