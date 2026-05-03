@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.edu.faculdade.sistemapastelaria.dto.LoginDTO;
 import br.edu.faculdade.sistemapastelaria.dto.UsuarioDTO;
 import br.edu.faculdade.sistemapastelaria.service.UsuarioService;
 
@@ -37,6 +38,11 @@ public class UsuarioController {
     @PostMapping
     public UsuarioDTO salvarUsuario(@RequestBody UsuarioDTO usuarioDto) {
         return usuarioService.salvarUsuario(usuarioDto);
+    }
+
+    @PostMapping("/login")
+    public UsuarioDTO loginUsuario(@RequestBody LoginDTO loginDto) {
+        return usuarioService.loginUsuario(loginDto);
     }
 
     @PutMapping

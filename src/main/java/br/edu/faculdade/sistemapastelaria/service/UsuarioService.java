@@ -7,6 +7,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import br.edu.faculdade.sistemapastelaria.dto.LoginDTO;
 import br.edu.faculdade.sistemapastelaria.dto.UsuarioDTO;
 import br.edu.faculdade.sistemapastelaria.model.Usuario;
 import br.edu.faculdade.sistemapastelaria.repository.UsuarioRepository;
@@ -35,6 +36,21 @@ public class UsuarioService {
                 usuario.getNome(),
                 usuario.getLogin(),
                 usuario.getSenha());
+    }
+
+    public UsuarioDTO loginUsuario(LoginDTO loginDto) {
+        Usuario usuario = usuarioRepository.findByLogin(loginDto.getLogin().toLowerCase())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Login ou senha invalidos"));
+
+        if (!usuario.isAtivo() || !passwordEncoder.matches(loginDto.getSenha(), usuario.getSenha())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Login ou senha invalidos");
+        }
+
+        return new UsuarioDTO(
+                usuario.getId(),
+                usuario.getNome(),
+                usuario.getLogin(),
+                null);
     }
 
     public UsuarioDTO atualizarUsuario(UsuarioDTO usuarioDto) {
