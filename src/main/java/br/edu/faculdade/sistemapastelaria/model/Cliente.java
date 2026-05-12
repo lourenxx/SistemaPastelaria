@@ -22,15 +22,17 @@ public class Cliente {
     private String nome;
     private String telefone;
     private String endereco;
+    private String email;
 
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Pedido> pedido = new ArrayList<>();
 
 
-    public Cliente(Long id, String nome, String telefone, String endereco) {
+    public Cliente(Long id, String nome, String telefone, String endereco, String email) {
         this.nome = nome;
         this.telefone = telefone;
         this.endereco = endereco;
+        this.email = email;
     }
 
 

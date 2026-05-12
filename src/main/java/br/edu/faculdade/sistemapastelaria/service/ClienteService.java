@@ -20,33 +20,42 @@ public class ClienteService {
     }
 
     public ClienteDTO salvarCliente(ClienteDTO clienteDto) {
+        String email = normalizarEmail(clienteDto.getEmail());
+        validarEmailUnico(email, null);
+
         Cliente cliente = new Cliente();
         cliente.setNome(clienteDto.getNome().toUpperCase());
         cliente.setTelefone(clienteDto.getTelefone());
         cliente.setEndereco(clienteDto.getEndereco().toUpperCase());
+        cliente.setEmail(email);
         clienteRepository.save(cliente);
 
         return new ClienteDTO(
                 cliente.getId(),
                 cliente.getNome(),
                 cliente.getTelefone(),
-                cliente.getEndereco());
+                cliente.getEndereco(),
+                cliente.getEmail());
     }
 
     public ClienteDTO atualizarCliente(ClienteDTO clienteDto) {
         Cliente cliente = clienteRepository.findById(clienteDto.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente nao encontrado"));
+        String email = normalizarEmail(clienteDto.getEmail());
+        validarEmailUnico(email, cliente.getId());
 
         cliente.setNome(clienteDto.getNome().toUpperCase());
         cliente.setTelefone(clienteDto.getTelefone());
         cliente.setEndereco(clienteDto.getEndereco().toUpperCase());
+        cliente.setEmail(email);
         clienteRepository.save(cliente);
 
         return new ClienteDTO(
                 cliente.getId(),
                 cliente.getNome(),
                 cliente.getTelefone(),
-                cliente.getEndereco());
+                cliente.getEndereco(),
+                cliente.getEmail());
     }
 
     public List<ClienteDTO> pesquisarClientes() {
@@ -57,7 +66,8 @@ public class ClienteService {
                         cliente.getId(),
                         cliente.getNome(),
                         cliente.getTelefone(),
-                        cliente.getEndereco()))
+                        cliente.getEndereco(),
+                        cliente.getEmail()))
                 .toList();
     }
 
@@ -69,7 +79,8 @@ public class ClienteService {
                 cliente.getId(),
                 cliente.getNome(),
                 cliente.getTelefone(),
-                cliente.getEndereco());
+                cliente.getEndereco(),
+                cliente.getEmail());
     }
 
     public ClienteDTO excluirCliente(Long id) {
@@ -82,6 +93,27 @@ public class ClienteService {
                 cliente.getId(),
                 cliente.getNome(),
                 cliente.getTelefone(),
-                cliente.getEndereco());
+                cliente.getEndereco(),
+                cliente.getEmail());
+    }
+
+    private String normalizarEmail(String email) {
+        if (email == null || email.isBlank()) {
+            return null;
+        }
+
+        return email.trim().toLowerCase();
+    }
+
+    private void validarEmailUnico(String email, Long idAtual) {
+        if (email == null) {
+            return;
+        }
+
+        clienteRepository.findByEmail(email)
+                .filter(cliente -> idAtual == null || !cliente.getId().equals(idAtual))
+                .ifPresent(cliente -> {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email ja cadastrado para outro cliente");
+                });
     }
 }

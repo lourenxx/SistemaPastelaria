@@ -11,9 +11,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.edu.faculdade.sistemapastelaria.dto.CodigoEmailDTO;
 import br.edu.faculdade.sistemapastelaria.dto.LoginDTO;
+import br.edu.faculdade.sistemapastelaria.dto.LoginCodigoRespostaDTO;
 import br.edu.faculdade.sistemapastelaria.dto.UsuarioDTO;
 import br.edu.faculdade.sistemapastelaria.service.UsuarioService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 @RestController
 @RequestMapping("/usuarios")
@@ -41,8 +45,13 @@ public class UsuarioController {
     }
 
     @PostMapping("/login")
-    public UsuarioDTO loginUsuario(@RequestBody LoginDTO loginDto) {
-        return usuarioService.loginUsuario(loginDto);
+    public LoginCodigoRespostaDTO loginUsuario(@RequestBody LoginDTO loginDto, HttpSession session) {
+        return usuarioService.loginUsuario(loginDto, session);
+    }
+
+    @PostMapping("/login/verificar-codigo")
+    public UsuarioDTO verificarCodigo(@RequestBody CodigoEmailDTO codigoDto, HttpServletRequest request) {
+        return usuarioService.verificarCodigo(codigoDto, request);
     }
 
     @PutMapping

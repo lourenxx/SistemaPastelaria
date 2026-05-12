@@ -52,6 +52,10 @@ h1 {
     outline: 3px solid rgba(37, 99, 235, 0.16);
 }
 
+.login-form [hidden] {
+    display: none;
+}
+
 .login-form button {
     width: 100%;
     height: 42px;
@@ -67,6 +71,14 @@ h1 {
 .login-form button:disabled {
     background: #93b4f6;
     cursor: not-allowed;
+}
+
+.mensagem-info {
+    margin: 0 0 16px;
+    color: #475569;
+    font-size: 14px;
+    line-height: 1.4;
+    text-align: center;
 }
 
 .mensagem-erro {

@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -22,12 +23,20 @@ public class SecurityConfig {
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(authz -> authz
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .requestMatchers("/", "/index.html", "/error").permitAll()
+                .requestMatchers("/Usuario/html/login.html", "/Usuario/css/**", "/Usuario/js/**").permitAll()
                 .requestMatchers("/h2-console/**").permitAll()
                 .requestMatchers("/h2-console").permitAll()
                 .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                .anyRequest().permitAll()
+                .requestMatchers(HttpMethod.POST, "/usuarios", "/usuarios/login", "/usuarios/login/verificar-codigo").permitAll()
+                .anyRequest().authenticated()
             )
             .csrf(csrf -> csrf.disable())
+            .formLogin(form -> form.disable())
+            .httpBasic(httpBasic -> httpBasic.disable())
+            .exceptionHandling(exception -> exception
+                .authenticationEntryPoint((request, response, authException) -> response.sendError(401)))
             .headers(headers -> headers.frameOptions(frame -> frame.disable()));
         
         return http.build();
