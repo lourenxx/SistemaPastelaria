@@ -73,7 +73,7 @@ async function verificarCodigo() {
         throw new Error(await lerMensagemErro(resposta, "Codigo invalido."));
     }
 
-    window.location.href = "sucesso.html";
+    window.location.href = "/Admin/html/dashboard.html";
 }
 
 async function lerMensagemErro(resposta, mensagemPadrao) {

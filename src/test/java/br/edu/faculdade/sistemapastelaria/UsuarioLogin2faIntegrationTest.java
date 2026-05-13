@@ -52,7 +52,7 @@ class UsuarioLogin2faIntegrationTest {
 
     @Test
     void deveExigirCodigoDeEmailAntesDeLiberarPaginaProtegida() throws Exception {
-        mockMvc.perform(get("/Usuario/html/sucesso.html"))
+        mockMvc.perform(get("/Admin/html/dashboard.html"))
                 .andExpect(status().isUnauthorized());
 
         mockMvc.perform(post("/usuarios")
@@ -84,7 +84,7 @@ class UsuarioLogin2faIntegrationTest {
 
         MockHttpSession session = (MockHttpSession) loginResult.getRequest().getSession(false);
 
-        mockMvc.perform(get("/Usuario/html/sucesso.html").session(session))
+        mockMvc.perform(get("/Admin/html/dashboard.html").session(session))
                 .andExpect(status().isUnauthorized());
 
         MvcResult verificacaoResult = mockMvc.perform(post("/usuarios/login/verificar-codigo")
@@ -103,9 +103,9 @@ class UsuarioLogin2faIntegrationTest {
 
         MockHttpSession sessaoAutenticada = (MockHttpSession) verificacaoResult.getRequest().getSession(false);
 
-        mockMvc.perform(get("/Usuario/html/sucesso.html").session(sessaoAutenticada))
+        mockMvc.perform(get("/Admin/html/dashboard.html").session(sessaoAutenticada))
                 .andExpect(status().isOk())
-                .andExpect(content().string(containsString("LOGIN BEM SUCEDIDO")));
+                .andExpect(content().string(containsString("Dashboard - Sistema Pastelaria")));
     }
 
     @TestConfiguration
