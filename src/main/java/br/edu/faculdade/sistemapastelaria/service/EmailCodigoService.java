@@ -10,6 +10,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -130,7 +131,14 @@ public class EmailCodigoService {
         mensagem.setSubject("Codigo de acesso - Sistema Pastelaria");
         mensagem.setText("Seu codigo de acesso e: " + codigo + "\nEle expira em 10 minutos.");
 
-        sender.send(mensagem);
+        try {
+            sender.send(mensagem);
+        } catch (MailException exception) {
+            throw new ResponseStatusException(
+                    HttpStatus.SERVICE_UNAVAILABLE,
+                    "Nao foi possivel enviar o codigo por email",
+                    exception);
+        }
     }
 
     private record CodigoPendente(Long usuarioId, String codigo, Instant expiraEm, int tentativas)
