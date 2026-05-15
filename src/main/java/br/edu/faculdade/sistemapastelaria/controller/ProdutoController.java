@@ -29,6 +29,11 @@ public class ProdutoController {
         return produtoService.pesquisarProdutos();
     }
 
+    @GetMapping("/cardapio")
+    public List<ProdutoDTO> pesquisarCardapio() {
+        return produtoService.pesquisarCardapio();
+    }
+
     @GetMapping("/{id}")
     public ProdutoDTO pesquisarPorId(@PathVariable Long id) {
         return produtoService.pesquisarPorId(id);

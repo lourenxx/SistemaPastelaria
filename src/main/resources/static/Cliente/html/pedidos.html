@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fazer pedido - Sistema Pastelaria</title>
+    <link rel="stylesheet" href="/Cliente/css/cliente.css">
+    <script src="/Cliente/js/cliente-api.js" defer></script>
+    <script src="/Cliente/js/pedidos.js" defer></script>
+</head>
+<body class="client-page">
+    <header class="client-header">
+        <div>
+            <strong>Sistema Pastelaria</strong>
+            <span>Area do cliente</span>
+        </div>
+        <div class="client-actions">
+            <span id="clienteNome"></span>
+            <button id="sairButton" class="secondary-action" type="button">Sair</button>
+        </div>
+    </header>
+
+    <main class="client-content">
+        <section class="order-title">
+            <h1>Fazer pedido</h1>
+            <p>Escolha os produtos disponiveis, revise o carrinho e envie o pedido para a pastelaria.</p>
+        </section>
+
+        <section class="order-grid">
+            <section class="panel">
+                <div class="panel-header">
+                    <h2>Cardapio</h2>
+                    <span id="produtosEstado" class="state" aria-live="polite"></span>
+                </div>
+                <div id="produtosLista" class="product-grid"></div>
+            </section>
+
+            <aside class="panel cart-panel">
+                <div class="panel-header">
+                    <h2>Seu pedido</h2>
+                    <strong id="pedidoTotal">R$ 0,00</strong>
+                </div>
+
+                <div id="carrinhoEstado" class="state">Nenhum item adicionado.</div>
+                <div id="carrinhoLista" class="cart-list"></div>
+
+                <form id="pedidoForm" class="stack-form">
+                    <label for="formaPagamento">Forma de pagamento</label>
+                    <select id="formaPagamento" required>
+                        <option value="">Selecione</option>
+                        <option value="DINHEIRO">DINHEIRO</option>
+                        <option value="CARTAO">CARTAO</option>
+                        <option value="PIX">PIX</option>
+                        <option value="OUTRO">OUTRO</option>
+                    </select>
+
+                    <label for="observacao">Observacao</label>
+                    <textarea id="observacao" rows="4"></textarea>
+
+                    <button class="primary-action" type="submit">Fazer pedido</button>
+                    <p id="pedidoMensagem" class="message" aria-live="polite"></p>
+                </form>
+            </aside>
+        </section>
+    </main>
+</body>
+</html>

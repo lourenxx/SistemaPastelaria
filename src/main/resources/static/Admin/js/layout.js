@@ -1,9 +1,9 @@
 (function () {
     const paginas = [
-        { id: "dashboard", href: "/Admin/html/dashboard.html", rotulo: "Dashboard", icon: "Inicio" },
-        { id: "produtos", href: "/Admin/html/produtos.html", rotulo: "Produtos", icon: "Prod" },
-        { id: "clientes", href: "/Admin/html/clientes.html", rotulo: "Clientes", icon: "Cli" },
-        { id: "pedidos", href: "/Admin/html/pedidos.html", rotulo: "Pedidos", icon: "Ped" }
+        { id: "dashboard", href: "/Admin/html/dashboard.html", rotulo: "Dashboard", icon: "IN" },
+        { id: "produtos", href: "/Admin/html/produtos.html", rotulo: "Produtos", icon: "PR" },
+        { id: "clientes", href: "/Admin/html/clientes.html", rotulo: "Clientes", icon: "CL" },
+        { id: "pedidos", href: "/Admin/html/pedidos.html", rotulo: "Pedidos", icon: "PE" }
     ];
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -64,6 +64,7 @@
 
             const icon = document.createElement("span");
             icon.className = "nav-icon";
+            icon.setAttribute("aria-hidden", "true");
             icon.textContent = pagina.icon;
 
             const label = document.createElement("span");
@@ -117,6 +118,24 @@
             wrapper.appendChild(button);
         }
 
+        const sair = document.createElement("button");
+        sair.type = "button";
+        sair.className = "btn btn-secondary";
+        sair.textContent = "Sair";
+        sair.addEventListener("click", sairDoSistema);
+        wrapper.appendChild(sair);
+
         return wrapper;
+    }
+
+    async function sairDoSistema() {
+        try {
+            await fetch("/sessao/logout", {
+                method: "POST",
+                credentials: "same-origin"
+            });
+        } finally {
+            window.location.href = "/index.html";
+        }
     }
 })();

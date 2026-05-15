@@ -115,6 +115,17 @@ public class PedidoService {
     }
 
     @Transactional
+    public PedidoDTO salvarPedidoCliente(Long clienteId, PedidoDTO pedidoDto) {
+        if (pedidoDto == null) {
+            pedidoDto = new PedidoDTO();
+        }
+
+        pedidoDto.setId(null);
+        pedidoDto.setClienteId(clienteId);
+        return salvarPedido(pedidoDto);
+    }
+
+    @Transactional
     public PedidoDTO atualizarPedido(PedidoDTO pedidoDto) {
         Pedido pedido = pedidoRepository.findById(pedidoDto.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pedido nao encontrado"));

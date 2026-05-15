@@ -31,6 +31,10 @@
             throw new ApiError("Sessao expirada. Faca login novamente.", 401);
         }
 
+        if (response.status === 403) {
+            throw new ApiError("Acesso negado para este perfil.", 403);
+        }
+
         if (!response.ok) {
             throw new ApiError(await readError(response), response.status);
         }

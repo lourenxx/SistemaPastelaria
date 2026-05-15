@@ -3,22 +3,23 @@
 }
 
 :root {
-    --bg: #f5f7fa;
+    --bg: #fff8e7;
     --surface: #ffffff;
-    --surface-alt: #eef2f7;
-    --border: #d7dee8;
-    --text: #172033;
+    --surface-alt: #e6f7fd;
+    --border: #d9e6ed;
+    --text: #243447;
     --muted: #667085;
-    --primary: #0f766e;
-    --primary-dark: #115e59;
+    --primary: #f6c343;
+    --primary-dark: #d99a18;
+    --accent: #24748f;
     --danger: #b42318;
     --danger-soft: #fef3f2;
     --success: #166534;
     --success-soft: #ecfdf3;
     --warning: #92400e;
     --warning-soft: #fffbeb;
-    --focus: rgba(15, 118, 110, 0.18);
-    --shadow: 0 16px 36px rgba(15, 23, 42, 0.08);
+    --focus: rgba(36, 116, 143, 0.2);
+    --shadow: 0 16px 36px rgba(36, 52, 71, 0.1);
 }
 
 html {
@@ -63,8 +64,9 @@ a {
     top: 0;
     height: 100vh;
     padding: 22px 18px;
-    background: #18212f;
-    color: #ffffff;
+    background: #ffffff;
+    color: var(--text);
+    border-right: 1px solid var(--border);
 }
 
 .brand {
@@ -78,7 +80,7 @@ a {
 }
 
 .brand span {
-    color: #b8c2d1;
+    color: var(--muted);
     font-size: 13px;
 }
 
@@ -90,29 +92,45 @@ a {
 .nav-link {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     min-height: 42px;
     padding: 0 12px;
     border-radius: 8px;
-    color: #d9e2f1;
+    color: var(--text);
     text-decoration: none;
     font-weight: 700;
 }
 
 .nav-link:hover,
 .nav-link:focus {
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--surface-alt);
     outline: none;
 }
 
 .nav-link.active {
     background: var(--primary);
-    color: #ffffff;
+    color: #3d2f10;
 }
 
 .nav-icon {
-    width: 24px;
+    width: 32px;
+    min-width: 32px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: #e6f7fd;
+    color: var(--accent);
+    font-size: 12px;
+    line-height: 1;
     text-align: center;
+    flex: 0 0 auto;
+}
+
+.nav-link.active .nav-icon {
+    background: rgba(255, 255, 255, 0.62);
+    color: #3d2f10;
 }
 
 .admin-page {
@@ -295,7 +313,7 @@ textarea {
 input:focus,
 select:focus,
 textarea:focus {
-    border-color: var(--primary);
+    border-color: var(--accent);
     outline: 3px solid var(--focus);
 }
 
@@ -326,7 +344,7 @@ textarea:focus {
 
 .btn-primary {
     background: var(--primary);
-    color: #ffffff;
+    color: #3d2f10;
 }
 
 .btn-primary:hover,
@@ -346,7 +364,7 @@ textarea:focus {
 
 .btn-ghost {
     background: transparent;
-    color: var(--primary);
+    color: var(--accent);
 }
 
 .btn:disabled {

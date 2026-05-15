@@ -164,7 +164,7 @@ public class UsuarioService {
         Authentication authentication = new UsernamePasswordAuthenticationToken(
                 usuario.getLogin(),
                 null,
-                AuthorityUtils.createAuthorityList("ROLE_USER"));
+                AuthorityUtils.createAuthorityList("ROLE_INTERNO"));
 
         SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
         securityContext.setAuthentication(authentication);

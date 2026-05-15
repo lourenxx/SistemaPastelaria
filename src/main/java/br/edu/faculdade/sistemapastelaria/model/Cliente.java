@@ -23,6 +23,7 @@ public class Cliente {
     private String telefone;
     private String endereco;
     private String email;
+    private String senha;
 
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Pedido> pedido = new ArrayList<>();
