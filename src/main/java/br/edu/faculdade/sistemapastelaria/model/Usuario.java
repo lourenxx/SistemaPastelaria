@@ -18,12 +18,14 @@ public class Usuario {
 
     private String nome;
     private String login;
+    private String email;
     private String senha;
     private boolean ativo;
 
-    public Usuario(String nome, String login, String senha, boolean ativo) {
+    public Usuario(String nome, String login, String email, String senha, boolean ativo) {
         this.nome = nome;
         this.login = login;
+        this.email = email;
         this.senha = senha;
         this.ativo = ativo;
     }

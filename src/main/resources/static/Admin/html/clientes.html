@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clientes - Sistema Pastelaria</title>
+    <link rel="stylesheet" href="../css/admin.css">
+    <script src="../js/api.js" defer></script>
+    <script src="../js/utils.js" defer></script>
+    <script src="../js/layout.js" defer></script>
+    <script src="../js/clientes.js" defer></script>
+</head>
+<body data-page="clientes" data-title="Clientes" data-subtitle="Cadastro de clientes" data-action-label="Novo cliente" data-action-target="novoCliente">
+    <div class="admin-shell">
+        <aside id="adminSidebar" class="admin-sidebar"></aside>
+        <div class="admin-page">
+            <header id="adminHeader" class="admin-header"></header>
+
+            <main class="admin-content">
+                <section class="toolbar">
+                    <input id="buscaCliente" class="search-input" type="search" placeholder="Buscar cliente">
+                </section>
+
+                <section id="clienteFormPanel" class="form-panel" hidden>
+                    <div class="form-header">
+                        <h2 id="clienteFormTitulo">Novo cliente</h2>
+                    </div>
+
+                    <form id="clienteForm">
+                        <input id="clienteId" name="id" type="hidden">
+
+                        <div class="form-grid">
+                            <div class="field">
+                                <label for="clienteNome">Nome</label>
+                                <input id="clienteNome" name="nome" type="text" required>
+                            </div>
+
+                            <div class="field">
+                                <label for="clienteTelefone">Telefone</label>
+                                <input id="clienteTelefone" name="telefone" type="text" required>
+                            </div>
+
+                            <div class="field">
+                                <label for="clienteEmail">Email</label>
+                                <input id="clienteEmail" name="email" type="email">
+                            </div>
+
+                            <div class="field">
+                                <label for="clienteEndereco">Endereco</label>
+                                <input id="clienteEndereco" name="endereco" type="text" required>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button id="cancelarCliente" class="btn btn-secondary" type="button">Cancelar</button>
+                            <button class="btn btn-primary" type="submit">Salvar</button>
+                        </div>
+                    </form>
+                </section>
+
+                <section class="content-card">
+                    <div class="section-header">
+                        <h2>Lista de clientes</h2>
+                    </div>
+                    <div id="clientesEstado" class="state" aria-live="polite"></div>
+                    <div class="table-wrapper">
+                        <table id="clientesTabela" hidden>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nome</th>
+                                    <th>Telefone</th>
+                                    <th>Email</th>
+                                    <th>Endereco</th>
+                                    <th>Acoes</th>
+                                </tr>
+                            </thead>
+                            <tbody id="clientesCorpo"></tbody>
+                        </table>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+</body>
+</html>

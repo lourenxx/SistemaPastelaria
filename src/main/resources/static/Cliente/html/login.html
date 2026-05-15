@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login do cliente - Sistema Pastelaria</title>
+    <link rel="stylesheet" href="/Cliente/css/cliente.css">
+    <script src="/Cliente/js/cliente-api.js" defer></script>
+    <script src="/Cliente/js/login.js" defer></script>
+</head>
+<body class="auth-page">
+    <main class="auth-shell">
+        <section class="brand-panel">
+            <span class="brand-kicker">Sou cliente</span>
+            <h1>Entre para fazer seu pedido</h1>
+            <p>Acesse com email e senha para montar seu pedido sem passar pela area administrativa.</p>
+        </section>
+
+        <section class="auth-card">
+            <h2>Tenho cadastro</h2>
+            <form id="clienteLoginForm" class="stack-form">
+                <label for="email">Email</label>
+                <input id="email" name="email" type="email" autocomplete="email" required>
+
+                <label for="senha">Senha</label>
+                <input id="senha" name="senha" type="password" autocomplete="current-password" required>
+
+                <button class="primary-action" type="submit">Entrar</button>
+                <p id="mensagemErro" class="message error" aria-live="polite"></p>
+            </form>
+
+            <a class="text-link" href="/Cliente/html/cadastro.html">Não tenho cadastro</a>
+            <a class="text-link" href="/index.html">Voltar</a>
+        </section>
+    </main>
+</body>
+</html>
