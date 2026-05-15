@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pedidos - Sistema Pastelaria</title>
+    <link rel="stylesheet" href="../css/admin.css">
+    <script src="../js/api.js" defer></script>
+    <script src="../js/utils.js" defer></script>
+    <script src="../js/layout.js" defer></script>
+    <script src="../js/pedidos.js" defer></script>
+</head>
+<body data-page="pedidos" data-title="Pedidos" data-subtitle="Lancamento e acompanhamento" data-action-label="Novo pedido" data-action-target="novoPedido">
+    <div class="admin-shell">
+        <aside id="adminSidebar" class="admin-sidebar"></aside>
+        <div class="admin-page">
+            <header id="adminHeader" class="admin-header"></header>
+
+            <main class="admin-content">
+                <section class="toolbar">
+                    <input id="buscaPedido" class="search-input" type="search" placeholder="Buscar pedido">
+                </section>
+
+                <section id="pedidoFormPanel" class="form-panel" hidden>
+                    <div class="form-header">
+                        <h2 id="pedidoFormTitulo">Novo pedido</h2>
+                    </div>
+
+                    <form id="pedidoForm">
+                        <input id="pedidoId" name="id" type="hidden">
+
+                        <div class="form-grid">
+                            <div class="field">
+                                <label for="pedidoCliente">Cliente</label>
+                                <select id="pedidoCliente" name="clienteId" required></select>
+                            </div>
+
+                            <div class="field">
+                                <label for="pedidoPagamento">Forma de pagamento</label>
+                                <select id="pedidoPagamento" name="formaPagamento">
+                                    <option value="">Selecione</option>
+                                    <option value="DINHEIRO">DINHEIRO</option>
+                                    <option value="CARTAO">CARTAO</option>
+                                    <option value="PIX">PIX</option>
+                                    <option value="OUTRO">OUTRO</option>
+                                </select>
+                            </div>
+
+                            <div class="field field-full">
+                                <label for="pedidoObservacao">Observacao</label>
+                                <textarea id="pedidoObservacao" name="observacao"></textarea>
+                            </div>
+
+                            <div class="items-panel">
+                                <div class="item-entry">
+                                    <div class="field">
+                                        <label for="itemProduto">Produto</label>
+                                        <select id="itemProduto"></select>
+                                    </div>
+
+                                    <div class="field">
+                                        <label for="itemQuantidade">Quantidade</label>
+                                        <input id="itemQuantidade" type="number" min="1" step="1" value="1">
+                                    </div>
+
+                                    <button id="adicionarItem" class="btn btn-secondary" type="button">Adicionar item</button>
+                                </div>
+
+                                <div id="itensEstado" class="state" aria-live="polite"></div>
+                                <div class="table-wrapper">
+                                    <table id="itensTabela" hidden>
+                                        <thead>
+                                            <tr>
+                                                <th>Produto</th>
+                                                <th>Quantidade</th>
+                                                <th>Preco</th>
+                                                <th>Subtotal</th>
+                                                <th>Acoes</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="itensCorpo"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button id="cancelarPedidoForm" class="btn btn-secondary" type="button">Cancelar</button>
+                            <button class="btn btn-primary" type="submit">Salvar</button>
+                        </div>
+                    </form>
+                </section>
+
+                <section class="content-card">
+                    <div class="section-header">
+                        <h2>Lista de pedidos</h2>
+                    </div>
+                    <div id="pedidosEstado" class="state" aria-live="polite"></div>
+                    <div class="table-wrapper">
+                        <table id="pedidosTabela" hidden>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Cliente</th>
+                                    <th>Status</th>
+                                    <th>Total</th>
+                                    <th>Data</th>
+                                    <th>Acoes</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pedidosCorpo"></tbody>
+                        </table>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+</body>
+</html>

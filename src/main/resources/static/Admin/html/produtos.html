@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Produtos - Sistema Pastelaria</title>
+    <link rel="stylesheet" href="../css/admin.css">
+    <script src="../js/api.js" defer></script>
+    <script src="../js/utils.js" defer></script>
+    <script src="../js/layout.js" defer></script>
+    <script src="../js/produtos.js" defer></script>
+</head>
+<body data-page="produtos" data-title="Produtos" data-subtitle="Cadastro e disponibilidade" data-action-label="Novo produto" data-action-target="novoProduto">
+    <div class="admin-shell">
+        <aside id="adminSidebar" class="admin-sidebar"></aside>
+        <div class="admin-page">
+            <header id="adminHeader" class="admin-header"></header>
+
+            <main class="admin-content">
+                <section class="toolbar">
+                    <input id="buscaProduto" class="search-input" type="search" placeholder="Buscar produto">
+                </section>
+
+                <section id="produtoFormPanel" class="form-panel" hidden>
+                    <div class="form-header">
+                        <h2 id="produtoFormTitulo">Novo produto</h2>
+                    </div>
+
+                    <form id="produtoForm">
+                        <input id="produtoId" name="id" type="hidden">
+
+                        <div class="form-grid">
+                            <div class="field">
+                                <label for="produtoNome">Nome</label>
+                                <input id="produtoNome" name="nome" type="text" required>
+                            </div>
+
+                            <div class="field">
+                                <label for="produtoCategoria">Categoria</label>
+                                <input id="produtoCategoria" name="categoria" type="text" required>
+                            </div>
+
+                            <div class="field">
+                                <label for="produtoPreco">Preco</label>
+                                <input id="produtoPreco" name="preco" type="number" min="0" step="0.01" required>
+                            </div>
+
+                            <div class="checkbox-field">
+                                <input id="produtoDisponivel" name="disponivel" type="checkbox" checked>
+                                <label for="produtoDisponivel">Disponivel</label>
+                            </div>
+
+                            <div class="field field-full">
+                                <label for="produtoDescricao">Descricao</label>
+                                <textarea id="produtoDescricao" name="descricao" required></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button id="cancelarProduto" class="btn btn-secondary" type="button">Cancelar</button>
+                            <button class="btn btn-primary" type="submit">Salvar</button>
+                        </div>
+                    </form>
+                </section>
+
+                <section class="content-card">
+                    <div class="section-header">
+                        <h2>Lista de produtos</h2>
+                    </div>
+                    <div id="produtosEstado" class="state" aria-live="polite"></div>
+                    <div class="table-wrapper">
+                        <table id="produtosTabela" hidden>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nome</th>
+                                    <th>Categoria</th>
+                                    <th>Preco</th>
+                                    <th>Status</th>
+                                    <th>Acoes</th>
+                                </tr>
+                            </thead>
+                            <tbody id="produtosCorpo"></tbody>
+                        </table>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+</body>
+</html>

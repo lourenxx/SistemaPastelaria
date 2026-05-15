@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login interno - Sistema Pastelaria</title>
+    <link rel="stylesheet" href="../css/login.css">
+    <script src="../js/login.js" defer></script>
+</head>
+<body>
+    <main class="login-container">
+        <p class="login-kicker">Sou usuário interno</p>
+        <h1>Login interno</h1>
+        <p class="login-copy">Acesso administrativo com autenticacao em duas etapas.</p>
+
+        <form id="formLogin" class="login-form">
+            <div id="camposCredenciais">
+                <label for="login">Login</label>
+                <input id="login" name="login" type="text" autocomplete="username" required>
+
+                <label for="senha">Senha</label>
+                <input id="senha" name="senha" type="password" autocomplete="current-password" required>
+            </div>
+
+            <div id="campoCodigo" hidden>
+                <p id="emailDestino" class="mensagem-info" aria-live="polite"></p>
+
+                <label for="codigo">Codigo recebido por email</label>
+                <input id="codigo" name="codigo" type="text" inputmode="numeric" autocomplete="one-time-code"
+                       maxlength="6" pattern="[0-9]{6}">
+            </div>
+
+            <button id="botaoEntrar" type="submit">Entrar</button>
+            <p id="mensagemErro" class="mensagem-erro" aria-live="polite"></p>
+        </form>
+
+        <a class="login-link" href="/index.html">Voltar</a>
+    </main>
+</body>
+</html>

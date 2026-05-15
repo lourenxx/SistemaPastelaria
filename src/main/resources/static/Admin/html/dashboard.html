@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Sistema Pastelaria</title>
+    <link rel="stylesheet" href="../css/admin.css">
+    <script src="../js/api.js" defer></script>
+    <script src="../js/utils.js" defer></script>
+    <script src="../js/layout.js" defer></script>
+    <script src="../js/dashboard.js" defer></script>
+</head>
+<body data-page="dashboard" data-title="Dashboard" data-subtitle="Resumo operacional">
+    <div class="admin-shell">
+        <aside id="adminSidebar" class="admin-sidebar"></aside>
+        <div class="admin-page">
+            <header id="adminHeader" class="admin-header"></header>
+
+            <main class="admin-content">
+                <section id="dashboardEstado" class="state" aria-live="polite"></section>
+
+                <section id="dashboardMetricas" class="metrics-grid" hidden></section>
+
+                <section id="dashboardConteudo" class="dashboard-grid" hidden>
+                    <section class="content-card">
+                        <div class="section-header">
+                            <h2>Pedidos recentes</h2>
+                        </div>
+                        <div id="pedidosRecentesEstado" class="state" aria-live="polite"></div>
+                        <div class="table-wrapper">
+                            <table id="pedidosRecentesTabela" hidden>
+                                <thead>
+                                    <tr>
+                                        <th>Pedido</th>
+                                        <th>Cliente</th>
+                                        <th>Status</th>
+                                        <th>Total</th>
+                                        <th>Data</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="pedidosRecentesCorpo"></tbody>
+                            </table>
+                        </div>
+                    </section>
+
+                    <section class="content-card">
+                        <div class="section-header">
+                            <h2>Resumo por status</h2>
+                        </div>
+                        <div id="statusResumo" class="status-list"></div>
+                    </section>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+</body>
+</html>
