@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Login interno - Sistema Pastelaria</title>
     <link rel="stylesheet" href="../css/login.css">
     <script src="../js/login.js" defer></script>
 </head>
 <body>
     <main class="login-container">
-        <h1>Login</h1>
+        <p class="login-kicker">Sou usuário interno</p>
+        <h1>Login interno</h1>
+        <p class="login-copy">Acesso administrativo com autenticacao em duas etapas.</p>
 
         <form id="formLogin" class="login-form">
             <div id="camposCredenciais">
@@ -31,6 +33,8 @@
             <button id="botaoEntrar" type="submit">Entrar</button>
             <p id="mensagemErro" class="mensagem-erro" aria-live="polite"></p>
         </form>
+
+        <a class="login-link" href="/index.html">Voltar</a>
     </main>
 </body>
 </html>

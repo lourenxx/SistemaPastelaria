@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de cliente - Sistema Pastelaria</title>
+    <link rel="stylesheet" href="/Cliente/css/cliente.css">
+    <script src="/Cliente/js/cliente-api.js" defer></script>
+    <script src="/Cliente/js/cadastro.js" defer></script>
+</head>
+<body class="auth-page">
+    <main class="auth-shell">
+        <section class="brand-panel">
+            <span class="brand-kicker">Não tenho cadastro</span>
+            <h1>Cadastre-se para pedir</h1>
+            <p>Seu cadastro fica separado dos usuarios internos e sera usado apenas para seus pedidos.</p>
+        </section>
+
+        <section class="auth-card">
+            <h2>Cadastrar cliente</h2>
+            <form id="clienteCadastroForm" class="stack-form">
+                <label for="nome">Nome</label>
+                <input id="nome" name="nome" type="text" autocomplete="name" required>
+
+                <label for="telefone">Telefone</label>
+                <input id="telefone" name="telefone" type="tel" autocomplete="tel" required>
+
+                <label for="endereco">Endereço</label>
+                <input id="endereco" name="endereco" type="text" autocomplete="street-address" required>
+
+                <label for="email">Email</label>
+                <input id="email" name="email" type="email" autocomplete="email" required>
+
+                <label for="senha">Senha</label>
+                <input id="senha" name="senha" type="password" autocomplete="new-password" required>
+
+                <button class="primary-action" type="submit">Cadastrar cliente</button>
+                <p id="mensagemCadastro" class="message" aria-live="polite"></p>
+            </form>
+
+            <a class="text-link" href="/Cliente/html/login.html">Tenho cadastro</a>
+            <a class="text-link" href="/index.html">Voltar</a>
+        </section>
+    </main>
+</body>
+</html>

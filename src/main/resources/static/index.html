@@ -2,10 +2,27 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0; url=Usuario/html/login.html">
-    <title>Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acesso - Sistema Pastelaria</title>
+    <link rel="stylesheet" href="/Cliente/css/cliente.css">
+    <script src="/Cliente/js/acesso.js" defer></script>
 </head>
-<body>
-    <a href="Usuario/html/login.html">Abrir login</a>
+<body class="auth-page">
+    <main class="auth-shell">
+        <section class="brand-panel">
+            <span class="brand-kicker">Sistema Pastelaria</span>
+            <h1>Escolha como deseja entrar</h1>
+        </section>
+
+        <section class="auth-card" aria-label="Selecao de acesso">
+            <button id="clienteButton" class="choice-button choice-primary" type="button">Sou cliente</button>
+            <a class="choice-button" href="/Usuario/html/login.html">Sou usuário interno</a>
+
+            <div id="clienteOptions" class="choice-group" hidden>
+                <a class="choice-button choice-primary" href="/Cliente/html/login.html">Tenho cadastro</a>
+                <a class="choice-button" href="/Cliente/html/cadastro.html">Não tenho cadastro</a>
+            </div>
+        </section>
+    </main>
 </body>
 </html>

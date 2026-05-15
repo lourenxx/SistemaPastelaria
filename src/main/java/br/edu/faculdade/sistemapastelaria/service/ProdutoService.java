@@ -61,13 +61,14 @@ public class ProdutoService {
         List<Produto> produtos = produtoRepository.findAll();
 
         return produtos.stream()
-                .map(produto -> new ProdutoDTO(
-                        produto.getId(),
-                        produto.getNome(),
-                        produto.getDescricao(),
-                        produto.getCategoria(),
-                        produto.getPreco(),
-                        produto.isDisponivel()))
+                .map(this::toDto)
+                .toList();
+    }
+
+    public List<ProdutoDTO> pesquisarCardapio() {
+        return produtoRepository.findAll().stream()
+                .filter(Produto::isDisponivel)
+                .map(this::toDto)
                 .toList();
     }
 
@@ -75,13 +76,7 @@ public class ProdutoService {
         Produto produto = produtoRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Produto nao encontrado"));
 
-        return new ProdutoDTO(
-                produto.getId(),
-                produto.getNome(),
-                produto.getDescricao(),
-                produto.getCategoria(),
-                produto.getPreco(),
-                produto.isDisponivel());
+        return toDto(produto);
     }
 
     public ProdutoDTO excluirProduto(Long id) {
@@ -91,6 +86,10 @@ public class ProdutoService {
         produto.setDisponivel(false);
         produtoRepository.save(produto);
 
+        return toDto(produto);
+    }
+
+    private ProdutoDTO toDto(Produto produto) {
         return new ProdutoDTO(
                 produto.getId(),
                 produto.getNome(),

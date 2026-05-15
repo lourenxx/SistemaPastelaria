@@ -1,6 +1,7 @@
 package br.edu.faculdade.sistemapastelaria;
 
 import static org.hamcrest.Matchers.containsString;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -28,7 +29,9 @@ import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import br.edu.faculdade.sistemapastelaria.dto.UsuarioDTO;
 import br.edu.faculdade.sistemapastelaria.repository.UsuarioRepository;
+import br.edu.faculdade.sistemapastelaria.service.UsuarioService;
 import jakarta.mail.internet.MimeMessage;
 
 @SpringBootTest
@@ -42,6 +45,9 @@ class UsuarioLogin2faIntegrationTest {
     private UsuarioRepository usuarioRepository;
 
     @Autowired
+    private UsuarioService usuarioService;
+
+    @Autowired
     private CapturingMailSender mailSender;
 
     @BeforeEach
@@ -52,22 +58,16 @@ class UsuarioLogin2faIntegrationTest {
 
     @Test
     void deveExigirCodigoDeEmailAntesDeLiberarPaginaProtegida() throws Exception {
-        mockMvc.perform(get("/Usuario/html/sucesso.html"))
+        mockMvc.perform(get("/Admin/html/dashboard.html"))
                 .andExpect(status().isUnauthorized());
 
-        mockMvc.perform(post("/usuarios")
-                .contentType("application/json")
-                .content("""
-                        {
-                          "nome": "Administrador",
-                          "login": "admin",
-                          "email": "ADMIN@EMAIL.COM",
-                          "senha": "123456"
-                        }
-                        """))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.email").value("admin@email.com"))
-                .andExpect(jsonPath("$.senha").doesNotExist());
+        UsuarioDTO usuario = usuarioService.salvarUsuario(new UsuarioDTO(
+                null,
+                "Administrador",
+                "admin",
+                "ADMIN@EMAIL.COM",
+                "123456"));
+        assertEquals("admin@email.com", usuario.getEmail());
 
         MvcResult loginResult = mockMvc.perform(post("/usuarios/login")
                 .contentType("application/json")
@@ -84,7 +84,7 @@ class UsuarioLogin2faIntegrationTest {
 
         MockHttpSession session = (MockHttpSession) loginResult.getRequest().getSession(false);
 
-        mockMvc.perform(get("/Usuario/html/sucesso.html").session(session))
+        mockMvc.perform(get("/Admin/html/dashboard.html").session(session))
                 .andExpect(status().isUnauthorized());
 
         MvcResult verificacaoResult = mockMvc.perform(post("/usuarios/login/verificar-codigo")
@@ -103,9 +103,21 @@ class UsuarioLogin2faIntegrationTest {
 
         MockHttpSession sessaoAutenticada = (MockHttpSession) verificacaoResult.getRequest().getSession(false);
 
-        mockMvc.perform(get("/Usuario/html/sucesso.html").session(sessaoAutenticada))
+        mockMvc.perform(get("/Admin/html/dashboard.html").session(sessaoAutenticada))
                 .andExpect(status().isOk())
-                .andExpect(content().string(containsString("LOGIN BEM SUCEDIDO")));
+                .andExpect(content().string(containsString("Dashboard - Sistema Pastelaria")));
+
+        mockMvc.perform(get("/produtos").session(sessaoAutenticada))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/clientes").session(sessaoAutenticada))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/pedidos").session(sessaoAutenticada))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/Cliente/html/pedidos.html").session(sessaoAutenticada))
+                .andExpect(status().isForbidden());
     }
 
     @TestConfiguration
