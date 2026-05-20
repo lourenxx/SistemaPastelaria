@@ -1,129 +1,169 @@
-(function () {
-    const U = window.AdminUtils;
-    const STATUS = ["ABERTO", "EM_PREPARO", "PRONTO", "ENTREGUE", "CANCELADO"];
+var Pedido = (function () {
+    var U = AdminUtils;
+    var STATUS = ["ABERTO", "EM_PREPARO", "PRONTO", "ENTREGUE", "CANCELADO"];
 
-    let pedidos = [];
-    let clientes = [];
-    let produtos = [];
-    let itensEmEdicao = [];
+    var pedidos = [];
+    var clientes = [];
+    var produtos = [];
+    var itensEmEdicao = [];
 
-    document.addEventListener("DOMContentLoaded", () => {
-        document.getElementById("novoPedido").addEventListener("click", abrirNovoPedido);
-        document.getElementById("cancelarPedidoForm").addEventListener("click", fecharFormulario);
-        document.getElementById("pedidoForm").addEventListener("submit", salvarPedido);
-        document.getElementById("adicionarItem").addEventListener("click", adicionarItem);
-        document.getElementById("buscaPedido").addEventListener("input", renderPedidos);
-        carregarDados();
-    });
+    var obterElementos = function () {
+        return {
+            $estado: $("#pedidosEstado"),
+            $tabela: $("#pedidosTabela"),
+            $corpo: $("#pedidosCorpo"),
+            $busca: $("#buscaPedido"),
+            $form: $("#pedidoForm"),
+            $formPanel: $("#pedidoFormPanel"),
+            $formTitulo: $("#pedidoFormTitulo"),
+            $id: $("#pedidoId"),
+            $cliente: $("#pedidoCliente"),
+            $pagamento: $("#pedidoPagamento"),
+            $observacao: $("#pedidoObservacao"),
+            $cancelar: $("#cancelarPedidoForm"),
+            $adicionarItem: $("#adicionarItem"),
+            $itemProduto: $("#itemProduto"),
+            $itemQuantidade: $("#itemQuantidade")
+        };
+    };
 
-    async function carregarDados() {
-        const estado = document.getElementById("pedidosEstado");
-        const tabela = document.getElementById("pedidosTabela");
+    var obterElementosItens = function () {
+        return {
+            $estado: $("#itensEstado"),
+            $tabela: $("#itensTabela"),
+            $corpo: $("#itensCorpo")
+        };
+    };
 
-        U.setEstado(estado, "", "Carregando pedidos...");
-        U.mostrarTabela(tabela, false);
+    var bindEventos = function () {
+        var elementos = obterElementos();
+
+        $(document).on("click", "#novoPedido", abrirNovoPedido);
+        elementos.$cancelar.on("click", fecharFormulario);
+        elementos.$form.on("submit", salvarPedido);
+        elementos.$adicionarItem.on("click", adicionarItem);
+        elementos.$busca.on("input", renderPedidos);
+    };
+
+    var carregarDados = async function () {
+        var elementos = obterElementos();
+
+        U.setEstado(elementos.$estado, "", "Carregando pedidos...");
+        U.mostrarTabela(elementos.$tabela, false);
 
         try {
-            [pedidos, clientes, produtos] = await Promise.all([
+            var dados = await Promise.all([
                 AdminApi.pedidos.listar(),
                 AdminApi.clientes.listar(),
                 AdminApi.produtos.listar()
             ]);
 
+            pedidos = dados[0];
+            clientes = dados[1];
+            produtos = dados[2];
+
             renderClientesOptions();
             renderProdutosOptions();
             renderPedidos();
         } catch (error) {
-            U.setEstado(estado, "error", U.mensagemErro(error));
+            U.setEstado(elementos.$estado, "error", U.mensagemErro(error));
         }
-    }
+    };
 
-    function renderClientesOptions() {
-        const select = document.getElementById("pedidoCliente");
-        U.limpar(select);
-        select.appendChild(new Option("Selecione", ""));
+    var renderClientesOptions = function () {
+        var elementos = obterElementos();
+        var $select = elementos.$cliente;
+        U.limpar($select);
+        $select.append(new Option("Selecione", ""));
 
-        clientes.forEach((cliente) => {
-            select.appendChild(new Option(`${cliente.nome} (#${cliente.id})`, cliente.id));
+        clientes.forEach(function (cliente) {
+            $select.append(new Option(cliente.nome + " (#" + cliente.id + ")", cliente.id));
         });
-    }
+    };
 
-    function renderProdutosOptions() {
-        const select = document.getElementById("itemProduto");
-        U.limpar(select);
-        select.appendChild(new Option("Selecione", ""));
+    var renderProdutosOptions = function () {
+        var elementos = obterElementos();
+        var $select = elementos.$itemProduto;
+        U.limpar($select);
+        $select.append(new Option("Selecione", ""));
 
-        produtos.forEach((produto) => {
-            const option = new Option(`${produto.nome} - ${U.formatarMoeda(produto.preco)}`, produto.id);
+        produtos.forEach(function (produto) {
+            var option = new Option(produto.nome + " - " + U.formatarMoeda(produto.preco), produto.id);
             option.disabled = !produto.disponivel;
-            select.appendChild(option);
+            $select.append(option);
         });
-    }
+    };
 
-    function renderPedidos() {
-        const estado = document.getElementById("pedidosEstado");
-        const tabela = document.getElementById("pedidosTabela");
-        const corpo = document.getElementById("pedidosCorpo");
-        const termo = U.normalizar(document.getElementById("buscaPedido").value);
-        const filtrados = pedidos.filter((pedido) => filtrarPedido(pedido, termo));
+    var renderPedidos = function () {
+        var elementos = obterElementos();
+        var termo = U.normalizar(elementos.$busca.val());
+        var filtrados = pedidos.filter(function (pedido) {
+            return filtrarPedido(pedido, termo);
+        });
 
-        U.limpar(corpo);
+        U.limpar(elementos.$corpo);
 
         if (pedidos.length === 0) {
-            U.setEstado(estado, "", "Nenhum pedido cadastrado.");
-            U.mostrarTabela(tabela, false);
+            U.setEstado(elementos.$estado, "", "Nenhum pedido cadastrado.");
+            U.mostrarTabela(elementos.$tabela, false);
             return;
         }
 
         if (filtrados.length === 0) {
-            U.setEstado(estado, "", "Nenhum pedido encontrado.");
-            U.mostrarTabela(tabela, false);
+            U.setEstado(elementos.$estado, "", "Nenhum pedido encontrado.");
+            U.mostrarTabela(elementos.$tabela, false);
             return;
         }
 
         filtrados
-            .sort((a, b) => Number(b.id || 0) - Number(a.id || 0))
-            .forEach((pedido) => corpo.appendChild(criarLinhaPedido(pedido)));
+            .sort(function (a, b) {
+                return Number(b.id || 0) - Number(a.id || 0);
+            })
+            .forEach(function (pedido) {
+                elementos.$corpo.append(criarLinhaPedido(pedido));
+            });
 
-        U.setEstado(estado, "", "");
-        U.mostrarTabela(tabela, true);
-    }
+        U.setEstado(elementos.$estado, "", "");
+        U.mostrarTabela(elementos.$tabela, true);
+    };
 
-    function criarLinhaPedido(pedido) {
-        const tr = document.createElement("tr");
-        const status = document.createElement("td");
-        const acoes = document.createElement("td");
-        const statusSelect = document.createElement("select");
-        const actions = document.createElement("div");
-        const editar = U.botao("Editar", "btn-secondary", () => abrirEdicao(pedido));
-        const cancelar = U.botao("Cancelar", "btn-danger", () => cancelarPedido(pedido));
+    var criarLinhaPedido = function (pedido) {
+        var $statusSelect = $("<select>", { class: "status-select" });
+        STATUS.forEach(function (status) {
+            $statusSelect.append(new Option(status, status));
+        });
+        $statusSelect
+            .val(pedido.status || "ABERTO")
+            .prop("disabled", pedido.status === "CANCELADO")
+            .on("change", function () {
+                atualizarStatus(pedido, $statusSelect);
+            });
 
-        statusSelect.className = "status-select";
-        STATUS.forEach((item) => statusSelect.appendChild(new Option(item, item)));
-        statusSelect.value = pedido.status || "ABERTO";
-        statusSelect.disabled = pedido.status === "CANCELADO";
-        statusSelect.addEventListener("change", () => atualizarStatus(pedido, statusSelect));
-        status.appendChild(statusSelect);
+        var editar = U.botao("Editar", "btn-secondary", function () {
+            abrirEdicao(pedido);
+        });
+        var cancelar = U.botao("Cancelar", "btn-danger", function () {
+            cancelarPedido(pedido);
+        });
+        $(editar).prop("disabled", pedido.status === "CANCELADO");
+        $(cancelar).prop("disabled", pedido.status === "CANCELADO");
 
-        editar.disabled = pedido.status === "CANCELADO";
-        cancelar.disabled = pedido.status === "CANCELADO";
-        actions.className = "table-actions";
-        actions.append(editar, cancelar);
-        acoes.appendChild(actions);
-
-        tr.append(
-            U.celula(pedido.id),
-            U.celula(nomeCliente(pedido.clienteId)),
-            status,
-            U.celula(U.formatarMoeda(pedido.valorTotal)),
-            U.celula(U.formatarDataHora(pedido.dataHoraPedido)),
-            acoes
+        var $status = $("<td>").append($statusSelect);
+        var $acoes = $("<td>").append(
+            $("<div>", { class: "table-actions" }).append(editar, cancelar)
         );
 
-        return tr;
-    }
+        return $("<tr>").append(
+            U.celula(pedido.id),
+            U.celula(nomeCliente(pedido.clienteId)),
+            $status,
+            U.celula(U.formatarMoeda(pedido.valorTotal)),
+            U.celula(U.formatarDataHora(pedido.dataHoraPedido)),
+            $acoes
+        );
+    };
 
-    function filtrarPedido(pedido, termo) {
+    var filtrarPedido = function (pedido, termo) {
         if (!termo || termo === "-") {
             return true;
         }
@@ -136,53 +176,61 @@
             pedido.formaPagamento,
             pedido.observacao,
             pedido.dataHoraPedido
-        ].some((valor) => U.normalizar(valor).includes(termo));
-    }
+        ].some(function (valor) {
+            return U.normalizar(valor).includes(termo);
+        });
+    };
 
-    function abrirNovoPedido() {
-        document.getElementById("pedidoFormTitulo").textContent = "Novo pedido";
-        document.getElementById("pedidoForm").reset();
-        document.getElementById("pedidoId").value = "";
+    var abrirNovoPedido = function () {
+        var elementos = obterElementos();
+
+        elementos.$formTitulo.text("Novo pedido");
+        elementos.$form[0].reset();
+        elementos.$id.val("");
         itensEmEdicao = [];
         renderItens();
-        document.getElementById("pedidoFormPanel").hidden = false;
-        document.getElementById("pedidoCliente").focus();
-    }
+        elementos.$formPanel.prop("hidden", false);
+        elementos.$cliente.trigger("focus");
+    };
 
-    async function abrirEdicao(pedido) {
+    var abrirEdicao = async function (pedido) {
         try {
-            const pedidoAtual = await AdminApi.pedidos.buscar(pedido.id);
-            document.getElementById("pedidoFormTitulo").textContent = `Editar pedido #${pedidoAtual.id}`;
-            document.getElementById("pedidoId").value = pedidoAtual.id;
-            document.getElementById("pedidoCliente").value = pedidoAtual.clienteId || "";
-            document.getElementById("pedidoPagamento").value = pedidoAtual.formaPagamento || "";
-            document.getElementById("pedidoObservacao").value = pedidoAtual.observacao || "";
-            itensEmEdicao = [...(pedidoAtual.itens || [])];
+            var elementos = obterElementos();
+            var pedidoAtual = await AdminApi.pedidos.buscar(pedido.id);
+            elementos.$formTitulo.text("Editar pedido #" + pedidoAtual.id);
+            elementos.$id.val(pedidoAtual.id);
+            elementos.$cliente.val(pedidoAtual.clienteId || "");
+            elementos.$pagamento.val(pedidoAtual.formaPagamento || "");
+            elementos.$observacao.val(pedidoAtual.observacao || "");
+            itensEmEdicao = (pedidoAtual.itens || []).slice();
             atualizarPedidoLocal(pedidoAtual);
             renderItens();
             renderPedidos();
-            document.getElementById("pedidoFormPanel").hidden = false;
-            document.getElementById("pedidoCliente").focus();
+            elementos.$formPanel.prop("hidden", false);
+            elementos.$cliente.trigger("focus");
         } catch (error) {
             U.toast(U.mensagemErro(error), "error");
         }
-    }
+    };
 
-    function fecharFormulario() {
-        document.getElementById("pedidoFormPanel").hidden = true;
-        document.getElementById("pedidoForm").reset();
+    var fecharFormulario = function () {
+        var elementos = obterElementos();
+
+        elementos.$formPanel.prop("hidden", true);
+        elementos.$form[0].reset();
         itensEmEdicao = [];
         renderItens();
-    }
+    };
 
-    async function salvarPedido(event) {
+    var salvarPedido = async function (event) {
         event.preventDefault();
 
-        const id = document.getElementById("pedidoId").value;
-        const pedido = montarPedidoPayload(id);
+        var elementos = obterElementos();
+        var id = elementos.$id.val();
+        var pedido = montarPedidoPayload(id);
 
         try {
-            const salvo = pedido.id
+            var salvo = pedido.id
                 ? await AdminApi.pedidos.atualizar(pedido)
                 : await AdminApi.pedidos.salvar(pedido);
 
@@ -193,11 +241,12 @@
         } catch (error) {
             U.toast(U.mensagemErro(error), "error");
         }
-    }
+    };
 
-    function montarPedidoPayload(id) {
-        const formaPagamento = document.getElementById("pedidoPagamento").value;
-        const observacao = document.getElementById("pedidoObservacao").value.trim();
+    var montarPedidoPayload = function (id) {
+        var elementos = obterElementos();
+        var formaPagamento = elementos.$pagamento.val();
+        var observacao = (elementos.$observacao.val() || "").trim();
 
         return {
             id: id ? Number(id) : null,
@@ -206,22 +255,27 @@
             valorTotal: null,
             formaPagamento: formaPagamento || null,
             observacao: observacao || null,
-            clienteId: Number(document.getElementById("pedidoCliente").value),
-            itens: itensEmEdicao.map((item) => ({
-                id: item.id || null,
-                quantidade: Number(item.quantidade),
-                precoUnitario: item.precoUnitario || null,
-                subTotal: item.subTotal || null,
-                produtoId: Number(item.produtoId)
-            }))
+            clienteId: Number(elementos.$cliente.val()),
+            itens: itensEmEdicao.map(function (item) {
+                return {
+                    id: item.id || null,
+                    quantidade: Number(item.quantidade),
+                    precoUnitario: item.precoUnitario || null,
+                    subTotal: item.subTotal || null,
+                    produtoId: Number(item.produtoId)
+                };
+            })
         };
-    }
+    };
 
-    async function adicionarItem() {
-        const pedidoId = document.getElementById("pedidoId").value;
-        const produtoId = Number(document.getElementById("itemProduto").value);
-        const quantidade = Number(document.getElementById("itemQuantidade").value);
-        const produto = produtos.find((item) => item.id === produtoId);
+    var adicionarItem = async function () {
+        var elementos = obterElementos();
+        var pedidoId = elementos.$id.val();
+        var produtoId = Number(elementos.$itemProduto.val());
+        var quantidade = Number(elementos.$itemQuantidade.val());
+        var produto = produtos.find(function (item) {
+            return item.id === produtoId;
+        });
 
         if (!produtoId || !produto) {
             U.toast("Informe um produto.", "error");
@@ -233,42 +287,45 @@
             return;
         }
 
-        const item = {
+        var item = {
             id: null,
-            quantidade,
+            quantidade: quantidade,
             precoUnitario: null,
             subTotal: null,
-            produtoId
+            produtoId: produtoId
         };
 
         try {
             if (pedidoId) {
-                const pedidoAtualizado = await AdminApi.pedidos.adicionarItem(Number(pedidoId), item);
-                itensEmEdicao = [...(pedidoAtualizado.itens || [])];
+                var pedidoAtualizado = await AdminApi.pedidos.adicionarItem(Number(pedidoId), item);
+                itensEmEdicao = (pedidoAtualizado.itens || []).slice();
                 atualizarPedidoLocal(pedidoAtualizado);
                 U.toast("Item adicionado.");
                 renderPedidos();
             } else {
-                const preco = Number(produto.preco || 0);
+                var preco = Number(produto.preco || 0);
                 itensEmEdicao.push({
-                    ...item,
+                    id: item.id,
+                    quantidade: item.quantidade,
                     precoUnitario: preco,
-                    subTotal: preco * quantidade
+                    subTotal: preco * quantidade,
+                    produtoId: item.produtoId
                 });
                 U.toast("Item adicionado.");
             }
 
-            document.getElementById("itemProduto").value = "";
-            document.getElementById("itemQuantidade").value = 1;
+            elementos.$itemProduto.val("");
+            elementos.$itemQuantidade.val(1);
             renderItens();
         } catch (error) {
             U.toast(U.mensagemErro(error), "error");
         }
-    }
+    };
 
-    async function removerItem(index) {
-        const pedidoId = document.getElementById("pedidoId").value;
-        const item = itensEmEdicao[index];
+    var removerItem = async function (index) {
+        var elementos = obterElementos();
+        var pedidoId = elementos.$id.val();
+        var item = itensEmEdicao[index];
 
         if (!item) {
             return;
@@ -276,8 +333,8 @@
 
         try {
             if (pedidoId && item.id) {
-                const pedidoAtualizado = await AdminApi.pedidos.removerItem(Number(pedidoId), item.id);
-                itensEmEdicao = [...(pedidoAtualizado.itens || [])];
+                var pedidoAtualizado = await AdminApi.pedidos.removerItem(Number(pedidoId), item.id);
+                itensEmEdicao = (pedidoAtualizado.itens || []).slice();
                 atualizarPedidoLocal(pedidoAtualizado);
                 U.toast("Item removido.");
                 renderPedidos();
@@ -290,91 +347,126 @@
         } catch (error) {
             U.toast(U.mensagemErro(error), "error");
         }
-    }
+    };
 
-    function renderItens() {
-        const estado = document.getElementById("itensEstado");
-        const tabela = document.getElementById("itensTabela");
-        const corpo = document.getElementById("itensCorpo");
+    var renderItens = function () {
+        var elementos = obterElementosItens();
 
-        U.limpar(corpo);
+        U.limpar(elementos.$corpo);
 
         if (itensEmEdicao.length === 0) {
-            U.setEstado(estado, "", "Nenhum item adicionado.");
-            U.mostrarTabela(tabela, false);
+            U.setEstado(elementos.$estado, "", "Nenhum item adicionado.");
+            U.mostrarTabela(elementos.$tabela, false);
             return;
         }
 
-        itensEmEdicao.forEach((item, index) => {
-            const produto = produtos.find((produtoItem) => produtoItem.id === item.produtoId);
-            const tr = document.createElement("tr");
-            const acoes = document.createElement("td");
-            const actions = document.createElement("div");
-
-            actions.className = "table-actions";
-            actions.appendChild(U.botao("Remover", "btn-danger", () => removerItem(index)));
-            acoes.appendChild(actions);
-
-            tr.append(
-                U.celula(produto ? produto.nome : `Produto ${item.produtoId}`),
-                U.celula(item.quantidade),
-                U.celula(U.formatarMoeda(item.precoUnitario)),
-                U.celula(U.formatarMoeda(item.subTotal)),
-                acoes
+        itensEmEdicao.forEach(function (item, index) {
+            var produto = produtos.find(function (produtoItem) {
+                return produtoItem.id === item.produtoId;
+            });
+            var $acoes = $("<td>").append(
+                $("<div>", { class: "table-actions" }).append(
+                    U.botao("Remover", "btn-danger", function () {
+                        removerItem(index);
+                    })
+                )
             );
-            corpo.appendChild(tr);
+
+            $("<tr>")
+                .append(
+                    U.celula(produto ? produto.nome : "Produto " + item.produtoId),
+                    U.celula(item.quantidade),
+                    U.celula(U.formatarMoeda(item.precoUnitario)),
+                    U.celula(U.formatarMoeda(item.subTotal)),
+                    $acoes
+                )
+                .appendTo(elementos.$corpo);
         });
 
-        U.setEstado(estado, "", "");
-        U.mostrarTabela(tabela, true);
-    }
+        U.setEstado(elementos.$estado, "", "");
+        U.mostrarTabela(elementos.$tabela, true);
+    };
 
-    async function atualizarStatus(pedido, select) {
-        const statusAnterior = pedido.status;
-        const statusNovo = select.value;
+    var atualizarStatus = async function (pedido, $select) {
+        var statusAnterior = pedido.status;
+        var statusNovo = $select.val();
 
-        select.disabled = true;
+        $select.prop("disabled", true);
 
         try {
-            const atualizado = await AdminApi.pedidos.atualizarStatus(pedido.id, statusNovo);
+            var atualizado = await AdminApi.pedidos.atualizarStatus(pedido.id, statusNovo);
             atualizarPedidoLocal(atualizado);
             U.toast("Status atualizado.");
             renderPedidos();
         } catch (error) {
-            select.value = statusAnterior;
+            $select.val(statusAnterior);
             U.toast(U.mensagemErro(error), "error");
         } finally {
-            select.disabled = select.value === "CANCELADO";
+            $select.prop("disabled", $select.val() === "CANCELADO");
         }
-    }
+    };
 
-    async function cancelarPedido(pedido) {
-        if (!window.confirm(`Cancelar pedido #${pedido.id}?`)) {
+    var cancelarPedido = async function (pedido) {
+        if (!window.confirm("Cancelar pedido #" + pedido.id + "?")) {
             return;
         }
 
         try {
-            const atualizado = await AdminApi.pedidos.cancelar(pedido.id);
+            var atualizado = await AdminApi.pedidos.cancelar(pedido.id);
             atualizarPedidoLocal(atualizado);
             U.toast("Pedido cancelado.");
             renderPedidos();
         } catch (error) {
             U.toast(U.mensagemErro(error), "error");
         }
-    }
+    };
 
-    function atualizarPedidoLocal(pedidoAtualizado) {
-        const index = pedidos.findIndex((pedido) => pedido.id === pedidoAtualizado.id);
+    var atualizarPedidoLocal = function (pedidoAtualizado) {
+        var index = pedidos.findIndex(function (pedido) {
+            return pedido.id === pedidoAtualizado.id;
+        });
 
         if (index >= 0) {
             pedidos[index] = pedidoAtualizado;
         } else {
             pedidos.push(pedidoAtualizado);
         }
-    }
+    };
 
-    function nomeCliente(clienteId) {
-        const cliente = clientes.find((item) => item.id === clienteId);
-        return cliente ? cliente.nome : `Cliente ${clienteId}`;
-    }
-})();
+    var nomeCliente = function (clienteId) {
+        var cliente = clientes.find(function (item) {
+            return item.id === clienteId;
+        });
+        return cliente ? cliente.nome : "Cliente " + clienteId;
+    };
+
+    var init = function () {
+        bindEventos();
+        carregarDados();
+    };
+
+    return {
+        init: init,
+        obterElementos: obterElementos,
+        obterElementosItens: obterElementosItens,
+        bindEventos: bindEventos,
+        carregarDados: carregarDados,
+        renderClientesOptions: renderClientesOptions,
+        renderProdutosOptions: renderProdutosOptions,
+        renderPedidos: renderPedidos,
+        criarLinhaPedido: criarLinhaPedido,
+        filtrarPedido: filtrarPedido,
+        abrirNovoPedido: abrirNovoPedido,
+        abrirEdicao: abrirEdicao,
+        fecharFormulario: fecharFormulario,
+        salvarPedido: salvarPedido,
+        montarPedidoPayload: montarPedidoPayload,
+        adicionarItem: adicionarItem,
+        removerItem: removerItem,
+        renderItens: renderItens,
+        atualizarStatus: atualizarStatus,
+        cancelarPedido: cancelarPedido,
+        atualizarPedidoLocal: atualizarPedidoLocal,
+        nomeCliente: nomeCliente
+    };
+}());

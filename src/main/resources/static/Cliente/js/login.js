@@ -1,23 +1,34 @@
-(function () {
-    document.addEventListener("DOMContentLoaded", () => {
-        document.getElementById("clienteLoginForm").addEventListener("submit", entrar);
-    });
+var LoginCliente = (function () {
+    var obterElementos = function () {
+        return {
+            $form: $("#clienteLoginForm"),
+            $mensagem: $("#mensagemErro"),
+            $email: $("#email"),
+            $senha: $("#senha")
+        };
+    };
 
-    async function entrar(event) {
+    var bindEventos = function () {
+        obterElementos().$form.on("submit", entrar);
+    };
+
+    var entrar = async function (event) {
         event.preventDefault();
 
-        const mensagem = document.getElementById("mensagemErro");
-        const button = event.target.querySelector("button[type='submit']");
+        var elementos = obterElementos();
+        var $button = $(event.currentTarget).find("button[type='submit']");
 
-        mensagem.textContent = "";
-        mensagem.className = "message error";
-        button.disabled = true;
-        button.textContent = "Entrando...";
+        elementos.$mensagem
+            .text("")
+            .attr("class", "message error");
+        $button
+            .prop("disabled", true)
+            .text("Entrando...");
 
         try {
-            const sessao = await ClienteApi.login({
-                email: document.getElementById("email").value.trim(),
-                senha: document.getElementById("senha").value
+            var sessao = await ClienteApi.login({
+                email: (elementos.$email.val() || "").trim(),
+                senha: elementos.$senha.val()
             });
 
             if (sessao.tipo !== "CLIENTE") {
@@ -26,10 +37,22 @@
 
             window.location.href = "/Cliente/html/pedidos.html";
         } catch (error) {
-            mensagem.textContent = error.message;
+            elementos.$mensagem.text(error.message);
         } finally {
-            button.disabled = false;
-            button.textContent = "Entrar";
+            $button
+                .prop("disabled", false)
+                .text("Entrar");
         }
-    }
-})();
+    };
+
+    var init = function () {
+        bindEventos();
+    };
+
+    return {
+        init: init,
+        obterElementos: obterElementos,
+        bindEventos: bindEventos,
+        entrar: entrar
+    };
+}());

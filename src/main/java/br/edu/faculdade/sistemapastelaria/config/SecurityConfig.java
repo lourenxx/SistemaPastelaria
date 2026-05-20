@@ -25,6 +25,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/", "/index.html", "/error").permitAll()
+                .requestMatchers("/vendor/**").permitAll()
                 .requestMatchers("/Usuario/html/login.html", "/Usuario/html/sucesso.html", "/Usuario/css/**", "/Usuario/js/**").permitAll()
                 .requestMatchers("/Cliente/html/login.html", "/Cliente/html/cadastro.html", "/Cliente/css/**", "/Cliente/js/**").permitAll()
                 .requestMatchers("/h2-console/**").permitAll()

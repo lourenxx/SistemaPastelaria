@@ -1,79 +1,98 @@
-(function () {
-    const U = window.AdminUtils;
-    let clientes = [];
+var Cliente = (function () {
+    var U = AdminUtils;
+    var clientes = [];
 
-    document.addEventListener("DOMContentLoaded", () => {
-        document.getElementById("novoCliente").addEventListener("click", abrirNovoCliente);
-        document.getElementById("cancelarCliente").addEventListener("click", fecharFormulario);
-        document.getElementById("clienteForm").addEventListener("submit", salvarCliente);
-        document.getElementById("buscaCliente").addEventListener("input", renderClientes);
-        carregarClientes();
-    });
+    var obterElementos = function () {
+        return {
+            $estado: $("#clientesEstado"),
+            $tabela: $("#clientesTabela"),
+            $corpo: $("#clientesCorpo"),
+            $form: $("#clienteForm"),
+            $formPanel: $("#clienteFormPanel"),
+            $formTitulo: $("#clienteFormTitulo"),
+            $id: $("#clienteId"),
+            $nome: $("#clienteNome"),
+            $telefone: $("#clienteTelefone"),
+            $email: $("#clienteEmail"),
+            $endereco: $("#clienteEndereco"),
+            $busca: $("#buscaCliente"),
+            $cancelar: $("#cancelarCliente")
+        };
+    };
 
-    async function carregarClientes() {
-        const estado = document.getElementById("clientesEstado");
-        const tabela = document.getElementById("clientesTabela");
+    var bindEventos = function () {
+        var elementos = obterElementos();
 
-        U.setEstado(estado, "", "Carregando clientes...");
-        U.mostrarTabela(tabela, false);
+        $(document).on("click", "#novoCliente", abrirNovoCliente);
+        elementos.$cancelar.on("click", fecharFormulario);
+        elementos.$form.on("submit", salvarCliente);
+        elementos.$busca.on("input", renderClientes);
+    };
+
+    var carregarClientes = async function () {
+        var elementos = obterElementos();
+
+        U.setEstado(elementos.$estado, "", "Carregando clientes...");
+        U.mostrarTabela(elementos.$tabela, false);
 
         try {
             clientes = await AdminApi.clientes.listar();
             renderClientes();
         } catch (error) {
-            U.setEstado(estado, "error", U.mensagemErro(error));
+            U.setEstado(elementos.$estado, "error", U.mensagemErro(error));
         }
-    }
+    };
 
-    function renderClientes() {
-        const estado = document.getElementById("clientesEstado");
-        const tabela = document.getElementById("clientesTabela");
-        const corpo = document.getElementById("clientesCorpo");
-        const termo = U.normalizar(document.getElementById("buscaCliente").value);
-        const filtrados = clientes.filter((cliente) => filtrarCliente(cliente, termo));
+    var renderClientes = function () {
+        var elementos = obterElementos();
+        var termo = U.normalizar(elementos.$busca.val());
+        var filtrados = clientes.filter(function (cliente) {
+            return filtrarCliente(cliente, termo);
+        });
 
-        U.limpar(corpo);
+        U.limpar(elementos.$corpo);
 
         if (clientes.length === 0) {
-            U.setEstado(estado, "", "Nenhum cliente cadastrado.");
-            U.mostrarTabela(tabela, false);
+            U.setEstado(elementos.$estado, "", "Nenhum cliente cadastrado.");
+            U.mostrarTabela(elementos.$tabela, false);
             return;
         }
 
         if (filtrados.length === 0) {
-            U.setEstado(estado, "", "Nenhum cliente encontrado.");
-            U.mostrarTabela(tabela, false);
+            U.setEstado(elementos.$estado, "", "Nenhum cliente encontrado.");
+            U.mostrarTabela(elementos.$tabela, false);
             return;
         }
 
-        filtrados.forEach((cliente) => {
-            const tr = document.createElement("tr");
-            const acoes = document.createElement("td");
-            const actions = document.createElement("div");
-
-            actions.className = "table-actions";
-            actions.append(
-                U.botao("Editar", "btn-secondary", () => abrirEdicao(cliente)),
-                U.botao("Excluir", "btn-danger", () => excluirCliente(cliente))
+        filtrados.forEach(function (cliente) {
+            var $acoes = $("<td>").append(
+                $("<div>", { class: "table-actions" }).append(
+                    U.botao("Editar", "btn-secondary", function () {
+                        abrirEdicao(cliente);
+                    }),
+                    U.botao("Excluir", "btn-danger", function () {
+                        excluirCliente(cliente);
+                    })
+                )
             );
-            acoes.appendChild(actions);
 
-            tr.append(
-                U.celula(cliente.id),
-                U.celula(cliente.nome),
-                U.celula(cliente.telefone),
-                U.celula(cliente.email),
-                U.celula(cliente.endereco),
-                acoes
-            );
-            corpo.appendChild(tr);
+            $("<tr>")
+                .append(
+                    U.celula(cliente.id),
+                    U.celula(cliente.nome),
+                    U.celula(cliente.telefone),
+                    U.celula(cliente.email),
+                    U.celula(cliente.endereco),
+                    $acoes
+                )
+                .appendTo(elementos.$corpo);
         });
 
-        U.setEstado(estado, "", "");
-        U.mostrarTabela(tabela, true);
-    }
+        U.setEstado(elementos.$estado, "", "");
+        U.mostrarTabela(elementos.$tabela, true);
+    };
 
-    function filtrarCliente(cliente, termo) {
+    var filtrarCliente = function (cliente, termo) {
         if (!termo || termo === "-") {
             return true;
         }
@@ -84,43 +103,52 @@
             cliente.telefone,
             cliente.email,
             cliente.endereco
-        ].some((valor) => U.normalizar(valor).includes(termo));
-    }
+        ].some(function (valor) {
+            return U.normalizar(valor).includes(termo);
+        });
+    };
 
-    function abrirNovoCliente() {
-        document.getElementById("clienteFormTitulo").textContent = "Novo cliente";
-        document.getElementById("clienteForm").reset();
-        document.getElementById("clienteId").value = "";
-        document.getElementById("clienteFormPanel").hidden = false;
-        document.getElementById("clienteNome").focus();
-    }
+    var abrirNovoCliente = function () {
+        var elementos = obterElementos();
 
-    function abrirEdicao(cliente) {
-        document.getElementById("clienteFormTitulo").textContent = `Editar cliente #${cliente.id}`;
-        document.getElementById("clienteId").value = cliente.id;
-        document.getElementById("clienteNome").value = cliente.nome || "";
-        document.getElementById("clienteTelefone").value = cliente.telefone || "";
-        document.getElementById("clienteEmail").value = cliente.email || "";
-        document.getElementById("clienteEndereco").value = cliente.endereco || "";
-        document.getElementById("clienteFormPanel").hidden = false;
-        document.getElementById("clienteNome").focus();
-    }
+        elementos.$formTitulo.text("Novo cliente");
+        elementos.$form[0].reset();
+        elementos.$id.val("");
+        elementos.$formPanel.prop("hidden", false);
+        elementos.$nome.trigger("focus");
+    };
 
-    function fecharFormulario() {
-        document.getElementById("clienteFormPanel").hidden = true;
-        document.getElementById("clienteForm").reset();
-    }
+    var abrirEdicao = function (cliente) {
+        var elementos = obterElementos();
 
-    async function salvarCliente(event) {
+        elementos.$formTitulo.text("Editar cliente #" + cliente.id);
+        elementos.$id.val(cliente.id);
+        elementos.$nome.val(cliente.nome || "");
+        elementos.$telefone.val(cliente.telefone || "");
+        elementos.$email.val(cliente.email || "");
+        elementos.$endereco.val(cliente.endereco || "");
+        elementos.$formPanel.prop("hidden", false);
+        elementos.$nome.trigger("focus");
+    };
+
+    var fecharFormulario = function () {
+        var elementos = obterElementos();
+
+        elementos.$formPanel.prop("hidden", true);
+        elementos.$form[0].reset();
+    };
+
+    var salvarCliente = async function (event) {
         event.preventDefault();
 
-        const id = document.getElementById("clienteId").value;
-        const email = document.getElementById("clienteEmail").value.trim();
-        const cliente = {
+        var elementos = obterElementos();
+        var id = elementos.$id.val();
+        var email = (elementos.$email.val() || "").trim();
+        var cliente = {
             id: id ? Number(id) : null,
-            nome: document.getElementById("clienteNome").value.trim(),
-            telefone: document.getElementById("clienteTelefone").value.trim(),
-            endereco: document.getElementById("clienteEndereco").value.trim(),
+            nome: (elementos.$nome.val() || "").trim(),
+            telefone: (elementos.$telefone.val() || "").trim(),
+            endereco: (elementos.$endereco.val() || "").trim(),
             email: email || null
         };
 
@@ -138,10 +166,10 @@
         } catch (error) {
             U.toast(U.mensagemErro(error), "error");
         }
-    }
+    };
 
-    async function excluirCliente(cliente) {
-        if (!window.confirm(`Excluir cliente ${cliente.nome}?`)) {
+    var excluirCliente = async function (cliente) {
+        if (!window.confirm("Excluir cliente " + cliente.nome + "?")) {
             return;
         }
 
@@ -152,5 +180,24 @@
         } catch (error) {
             U.toast(U.mensagemErro(error), "error");
         }
-    }
-})();
+    };
+
+    var init = function () {
+        bindEventos();
+        carregarClientes();
+    };
+
+    return {
+        init: init,
+        obterElementos: obterElementos,
+        bindEventos: bindEventos,
+        carregarClientes: carregarClientes,
+        renderClientes: renderClientes,
+        filtrarCliente: filtrarCliente,
+        abrirNovoCliente: abrirNovoCliente,
+        abrirEdicao: abrirEdicao,
+        fecharFormulario: fecharFormulario,
+        salvarCliente: salvarCliente,
+        excluirCliente: excluirCliente
+    };
+}());

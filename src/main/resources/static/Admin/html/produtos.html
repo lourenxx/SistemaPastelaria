@@ -5,10 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Produtos - Sistema Pastelaria</title>
     <link rel="stylesheet" href="../css/admin.css">
+    <script src="/vendor/jquery/jquery-4.0.0.slim.min.js" defer></script>
     <script src="../js/api.js" defer></script>
     <script src="../js/utils.js" defer></script>
     <script src="../js/layout.js" defer></script>
     <script src="../js/produtos.js" defer></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            $(AdminLayout.init);
+            $(Produto.init);
+        });
+    </script>
 </head>
 <body data-page="produtos" data-title="Produtos" data-subtitle="Cadastro e disponibilidade" data-action-label="Novo produto" data-action-target="novoProduto">
     <div class="admin-shell">

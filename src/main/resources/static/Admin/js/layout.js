@@ -1,141 +1,151 @@
-(function () {
-    const paginas = [
+var AdminLayout = (function () {
+    var paginas = [
         { id: "dashboard", href: "/Admin/html/dashboard.html", rotulo: "Dashboard", icon: "IN" },
         { id: "produtos", href: "/Admin/html/produtos.html", rotulo: "Produtos", icon: "PR" },
         { id: "clientes", href: "/Admin/html/clientes.html", rotulo: "Clientes", icon: "CL" },
         { id: "pedidos", href: "/Admin/html/pedidos.html", rotulo: "Pedidos", icon: "PE" }
     ];
 
-    document.addEventListener("DOMContentLoaded", () => {
-        const sidebar = document.getElementById("adminSidebar");
-        const header = document.getElementById("adminHeader");
+    var obterElementos = function () {
+        return {
+            $sidebar: $("#adminSidebar"),
+            $header: $("#adminHeader"),
+            $body: $("body")
+        };
+    };
 
-        if (!sidebar || !header) {
+    var montarLayout = function () {
+        var elementos = obterElementos();
+
+        if (!elementos.$sidebar.length || !elementos.$header.length) {
             return;
         }
 
-        const paginaAtual = document.body.dataset.page;
-        const titulo = document.body.dataset.title || "Administracao";
-        const subtitulo = document.body.dataset.subtitle || "Sistema Pastelaria";
+        var paginaAtual = elementos.$body.data("page");
+        var titulo = elementos.$body.data("title") || "Administracao";
+        var subtitulo = elementos.$body.data("subtitle") || "Sistema Pastelaria";
 
-        sidebar.appendChild(criarMarca());
-        sidebar.appendChild(criarNavegacao(paginaAtual));
-        header.appendChild(criarBotaoMenu());
-        header.appendChild(criarTitulo(titulo, subtitulo));
-        header.appendChild(criarAcoesHeader());
+        elementos.$sidebar.append(criarMarca(), criarNavegacao(paginaAtual));
+        elementos.$header.append(criarBotaoMenu(), criarTitulo(titulo, subtitulo), criarAcoesHeader());
 
-        document.addEventListener("click", (event) => {
-            if (window.innerWidth > 980 || !document.body.classList.contains("nav-open")) {
+        bindCliqueForaMenu(elementos.$sidebar, elementos.$body);
+    };
+
+    var bindCliqueForaMenu = function ($sidebar, $body) {
+        $(document).on("click", function (event) {
+            if (window.innerWidth > 980 || !$body.hasClass("nav-open")) {
                 return;
             }
 
-            const clicouSidebar = sidebar.contains(event.target);
-            const clicouMenu = event.target.closest("#menuButton");
+            var clicouSidebar = $sidebar[0].contains(event.target);
+            var clicouMenu = $(event.target).closest("#menuButton").length > 0;
 
             if (!clicouSidebar && !clicouMenu) {
-                document.body.classList.remove("nav-open");
+                $body.removeClass("nav-open");
             }
         });
-    });
+    };
 
-    function criarMarca() {
-        const brand = document.createElement("div");
-        brand.className = "brand";
+    var criarMarca = function () {
+        return $("<div>", { class: "brand" }).append(
+            $("<strong>").text("Sistema Pastelaria"),
+            $("<span>").text("Area administrativa")
+        );
+    };
 
-        const nome = document.createElement("strong");
-        nome.textContent = "Sistema Pastelaria";
-
-        const area = document.createElement("span");
-        area.textContent = "Area administrativa";
-
-        brand.append(nome, area);
-        return brand;
-    }
-
-    function criarNavegacao(paginaAtual) {
-        const nav = document.createElement("nav");
-        nav.className = "admin-nav";
-        nav.setAttribute("aria-label", "Navegacao principal");
-
-        paginas.forEach((pagina) => {
-            const link = document.createElement("a");
-            link.href = pagina.href;
-            link.className = pagina.id === paginaAtual ? "nav-link active" : "nav-link";
-
-            const icon = document.createElement("span");
-            icon.className = "nav-icon";
-            icon.setAttribute("aria-hidden", "true");
-            icon.textContent = pagina.icon;
-
-            const label = document.createElement("span");
-            label.textContent = pagina.rotulo;
-
-            link.append(icon, label);
-            nav.appendChild(link);
+    var criarNavegacao = function (paginaAtual) {
+        var $nav = $("<nav>", {
+            class: "admin-nav",
+            "aria-label": "Navegacao principal"
         });
 
-        return nav;
-    }
+        paginas.forEach(function (pagina) {
+            $("<a>", {
+                href: pagina.href,
+                class: pagina.id === paginaAtual ? "nav-link active" : "nav-link"
+            })
+                .append(
+                    $("<span>", {
+                        class: "nav-icon",
+                        "aria-hidden": "true"
+                    }).text(pagina.icon),
+                    $("<span>").text(pagina.rotulo)
+                )
+                .appendTo($nav);
+        });
 
-    function criarBotaoMenu() {
-        const button = document.createElement("button");
-        button.type = "button";
-        button.id = "menuButton";
-        button.className = "menu-button";
-        button.setAttribute("aria-label", "Abrir menu");
-        button.textContent = "Menu";
-        button.addEventListener("click", () => document.body.classList.toggle("nav-open"));
-        return button;
-    }
+        return $nav;
+    };
 
-    function criarTitulo(titulo, subtitulo) {
-        const wrapper = document.createElement("div");
-        wrapper.className = "header-title";
+    var criarBotaoMenu = function () {
+        return $("<button>", {
+            type: "button",
+            id: "menuButton",
+            class: "menu-button",
+            "aria-label": "Abrir menu"
+        })
+            .text("Menu")
+            .on("click", function () {
+                obterElementos().$body.toggleClass("nav-open");
+            });
+    };
 
-        const h1 = document.createElement("h1");
-        h1.textContent = titulo;
+    var criarTitulo = function (titulo, subtitulo) {
+        return $("<div>", { class: "header-title" }).append(
+            $("<h1>").text(titulo),
+            $("<p>").text(subtitulo)
+        );
+    };
 
-        const p = document.createElement("p");
-        p.textContent = subtitulo;
-
-        wrapper.append(h1, p);
-        return wrapper;
-    }
-
-    function criarAcoesHeader() {
-        const wrapper = document.createElement("div");
-        const label = document.body.dataset.actionLabel;
-        const target = document.body.dataset.actionTarget;
-
-        wrapper.className = "header-actions";
+    var criarAcoesHeader = function () {
+        var elementos = obterElementos();
+        var label = elementos.$body.data("actionLabel");
+        var target = elementos.$body.data("actionTarget");
+        var $wrapper = $("<div>", { class: "header-actions" });
 
         if (label && target) {
-            const button = document.createElement("button");
-            button.id = target;
-            button.type = "button";
-            button.className = "btn btn-primary";
-            button.textContent = label;
-            wrapper.appendChild(button);
+            $("<button>", {
+                id: target,
+                type: "button",
+                class: "btn btn-primary"
+            })
+                .text(label)
+                .appendTo($wrapper);
         }
 
-        const sair = document.createElement("button");
-        sair.type = "button";
-        sair.className = "btn btn-secondary";
-        sair.textContent = "Sair";
-        sair.addEventListener("click", sairDoSistema);
-        wrapper.appendChild(sair);
+        $("<button>", {
+            type: "button",
+            class: "btn btn-secondary"
+        })
+            .text("Sair")
+            .on("click", sairDoSistema)
+            .appendTo($wrapper);
 
-        return wrapper;
-    }
+        return $wrapper;
+    };
 
-    async function sairDoSistema() {
+    var sairDoSistema = async function () {
         try {
-            await fetch("/sessao/logout", {
-                method: "POST",
-                credentials: "same-origin"
-            });
+            await AdminApi.sessao.logout();
         } finally {
             window.location.href = "/index.html";
         }
-    }
-})();
+    };
+
+    var init = function () {
+        montarLayout();
+    };
+
+    return {
+        init: init,
+        obterElementos: obterElementos,
+        montarLayout: montarLayout,
+        bindCliqueForaMenu: bindCliqueForaMenu,
+        criarMarca: criarMarca,
+        criarNavegacao: criarNavegacao,
+        criarBotaoMenu: criarBotaoMenu,
+        criarTitulo: criarTitulo,
+        criarAcoesHeader: criarAcoesHeader,
+        sairDoSistema: sairDoSistema
+    };
+}());

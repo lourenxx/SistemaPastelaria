@@ -1,20 +1,20 @@
-(function () {
-    const moeda = new Intl.NumberFormat("pt-BR", {
+var AdminUtils = (function () {
+    var moeda = new Intl.NumberFormat("pt-BR", {
         style: "currency",
         currency: "BRL"
     });
 
-    function formatarMoeda(valor) {
-        const numero = Number(valor || 0);
+    var formatarMoeda = function (valor) {
+        var numero = Number(valor || 0);
         return moeda.format(Number.isFinite(numero) ? numero : 0);
-    }
+    };
 
-    function formatarDataHora(valor) {
+    var formatarDataHora = function (valor) {
         if (!valor) {
             return "-";
         }
 
-        const data = new Date(valor);
+        var data = new Date(valor);
         if (Number.isNaN(data.getTime())) {
             return valor;
         }
@@ -26,80 +26,80 @@
             hour: "2-digit",
             minute: "2-digit"
         });
-    }
+    };
 
-    function texto(valor) {
+    var texto = function (valor) {
         if (valor === null || valor === undefined || valor === "") {
             return "-";
         }
 
         return String(valor);
-    }
+    };
 
-    function normalizar(valor) {
+    var normalizar = function (valor) {
         return texto(valor)
             .toLowerCase()
             .normalize("NFD")
             .replace(/[\u0300-\u036f]/g, "");
-    }
+    };
 
-    function setEstado(elemento, tipo, mensagem) {
-        elemento.hidden = !mensagem;
-        elemento.textContent = mensagem || "";
-        elemento.className = tipo ? `state state-${tipo}` : "state";
-    }
+    var setEstado = function (elemento, tipo, mensagem) {
+        $(elemento)
+            .prop("hidden", !mensagem)
+            .text(mensagem || "")
+            .attr("class", tipo ? "state state-" + tipo : "state");
+    };
 
-    function mostrarTabela(tabela, mostrar) {
-        tabela.hidden = !mostrar;
-    }
+    var mostrarTabela = function (tabela, mostrar) {
+        $(tabela).prop("hidden", !mostrar);
+    };
 
-    function limpar(elemento) {
-        while (elemento.firstChild) {
-            elemento.removeChild(elemento.firstChild);
-        }
-    }
+    var limpar = function (elemento) {
+        $(elemento).empty();
+    };
 
-    function celula(valor) {
-        const td = document.createElement("td");
-        td.textContent = texto(valor);
-        return td;
-    }
+    var celula = function (valor) {
+        return $("<td>").text(texto(valor))[0];
+    };
 
-    function botao(rotulo, classe, acao) {
-        const button = document.createElement("button");
-        button.type = "button";
-        button.className = `btn ${classe}`;
-        button.textContent = rotulo;
-        button.addEventListener("click", acao);
-        return button;
-    }
+    var botao = function (rotulo, classe, acao) {
+        return $("<button>", {
+            type: "button",
+            class: "btn " + classe
+        })
+            .text(rotulo)
+            .on("click", acao)[0];
+    };
 
-    function badge(rotulo, tipo) {
-        const span = document.createElement("span");
-        span.className = `badge badge-${tipo}`;
-        span.textContent = rotulo;
-        return span;
-    }
+    var badge = function (rotulo, tipo) {
+        return $("<span>", {
+            class: "badge badge-" + tipo
+        })
+            .text(rotulo)[0];
+    };
 
-    function toast(mensagem, tipo = "success") {
-        const container = document.getElementById("toastContainer");
-        if (!container) {
+    var toast = function (mensagem, tipo = "success") {
+        var $container = $("#toastContainer");
+        if (!$container.length) {
             return;
         }
 
-        const item = document.createElement("div");
-        item.className = `toast toast-${tipo}`;
-        item.textContent = mensagem;
-        container.appendChild(item);
+        var $item = $("<div>", {
+            class: "toast toast-" + tipo
+        })
+            .text(mensagem)
+            .appendTo($container);
 
-        window.setTimeout(() => item.remove(), 4200);
-    }
+        window.setTimeout(function () {
+            $item.remove();
+        }, 4200);
+    };
 
-    function mensagemErro(error) {
+    var mensagemErro = function (error) {
         return error && error.message ? error.message : "Nao foi possivel concluir a operacao.";
-    }
+    };
 
-    function statusBadgeTipo(status) {
+    var statusBadgeTipo = function (status) {
         if (status === "CANCELADO") {
             return "danger";
         }
@@ -113,21 +113,21 @@
         }
 
         return "muted";
-    }
-
-    window.AdminUtils = {
-        formatarMoeda,
-        formatarDataHora,
-        texto,
-        normalizar,
-        setEstado,
-        mostrarTabela,
-        limpar,
-        celula,
-        botao,
-        badge,
-        toast,
-        mensagemErro,
-        statusBadgeTipo
     };
-})();
+
+    return {
+        formatarMoeda: formatarMoeda,
+        formatarDataHora: formatarDataHora,
+        texto: texto,
+        normalizar: normalizar,
+        setEstado: setEstado,
+        mostrarTabela: mostrarTabela,
+        limpar: limpar,
+        celula: celula,
+        botao: botao,
+        badge: badge,
+        toast: toast,
+        mensagemErro: mensagemErro,
+        statusBadgeTipo: statusBadgeTipo
+    };
+}());
