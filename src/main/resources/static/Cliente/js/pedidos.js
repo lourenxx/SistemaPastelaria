@@ -1,197 +1,247 @@
-(function () {
-    const moeda = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
-    let produtos = [];
-    let carrinho = [];
+var PedidoCliente = (function () {
+    var moeda = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
+    var produtos = [];
+    var carrinho = [];
 
-    document.addEventListener("DOMContentLoaded", () => {
-        document.getElementById("pedidoForm").addEventListener("submit", enviarPedido);
-        document.getElementById("sairButton").addEventListener("click", sair);
-        iniciar();
-    });
+    var obterElementos = function () {
+        return {
+            $form: $("#pedidoForm"),
+            $sairButton: $("#sairButton"),
+            $clienteNome: $("#clienteNome"),
+            $produtosEstado: $("#produtosEstado"),
+            $produtosLista: $("#produtosLista"),
+            $pedidoMensagem: $("#pedidoMensagem"),
+            $carrinhoLista: $("#carrinhoLista"),
+            $carrinhoEstado: $("#carrinhoEstado"),
+            $pedidoTotal: $("#pedidoTotal"),
+            $formaPagamento: $("#formaPagamento"),
+            $observacao: $("#observacao")
+        };
+    };
 
-    async function iniciar() {
+    var bindEventos = function () {
+        var elementos = obterElementos();
+
+        elementos.$form.on("submit", enviarPedido);
+        elementos.$sairButton.on("click", sair);
+    };
+
+    var iniciar = async function () {
+        var elementos = obterElementos();
+
         try {
-            const sessao = await ClienteApi.sessao();
+            var sessao = await ClienteApi.sessao();
 
             if (sessao.tipo !== "CLIENTE") {
                 window.location.href = "/index.html";
                 return;
             }
 
-            document.getElementById("clienteNome").textContent = sessao.nome || sessao.email || "";
+            elementos.$clienteNome.text(sessao.nome || sessao.email || "");
             await carregarCardapio();
         } catch (error) {
-            document.getElementById("produtosEstado").textContent = error.message;
-            document.getElementById("produtosEstado").className = "state error";
+            elementos.$produtosEstado
+                .text(error.message)
+                .attr("class", "state error");
         }
-    }
+    };
 
-    async function carregarCardapio() {
-        const estado = document.getElementById("produtosEstado");
-        estado.textContent = "Carregando...";
-        estado.className = "state";
+    var carregarCardapio = async function () {
+        var elementos = obterElementos();
+
+        elementos.$produtosEstado
+            .text("Carregando...")
+            .attr("class", "state");
 
         produtos = await ClienteApi.cardapio();
         renderProdutos();
-    }
+    };
 
-    function renderProdutos() {
-        const lista = document.getElementById("produtosLista");
-        const estado = document.getElementById("produtosEstado");
+    var renderProdutos = function () {
+        var elementos = obterElementos();
 
-        lista.innerHTML = "";
+        elementos.$produtosLista.empty();
 
         if (!produtos.length) {
-            estado.textContent = "Nenhum produto disponivel.";
+            elementos.$produtosEstado.text("Nenhum produto disponivel.");
             return;
         }
 
-        estado.textContent = "";
+        elementos.$produtosEstado.text("");
 
-        produtos.forEach((produto) => {
-            const card = document.createElement("article");
-            const titulo = document.createElement("h3");
-            const descricao = document.createElement("p");
-            const meta = document.createElement("div");
-            const categoria = document.createElement("span");
-            const preco = document.createElement("strong");
-            const actions = document.createElement("div");
-            const quantidade = document.createElement("input");
-            const adicionar = document.createElement("button");
+        produtos.forEach(function (produto) {
+            var $quantidade = $("<input>", {
+                type: "number",
+                min: "1",
+                step: "1",
+                value: "1"
+            });
 
-            card.className = "product-card";
-            titulo.textContent = produto.nome;
-            descricao.textContent = produto.descricao || "Produto da casa";
-            meta.className = "product-meta";
-            categoria.textContent = produto.categoria || "Cardapio";
-            preco.textContent = moeda.format(Number(produto.preco || 0));
-            actions.className = "product-actions";
-            quantidade.type = "number";
-            quantidade.min = "1";
-            quantidade.step = "1";
-            quantidade.value = "1";
-            adicionar.type = "button";
-            adicionar.className = "primary-action";
-            adicionar.textContent = "Adicionar";
-            adicionar.addEventListener("click", () => adicionarAoCarrinho(produto, Number(quantidade.value)));
-
-            meta.append(categoria, preco);
-            actions.append(quantidade, adicionar);
-            card.append(titulo, descricao, meta, actions);
-            lista.appendChild(card);
+            $("<article>", { class: "product-card" })
+                .append(
+                    $("<h3>").text(produto.nome),
+                    $("<p>").text(produto.descricao || "Produto da casa"),
+                    $("<div>", { class: "product-meta" }).append(
+                        $("<span>").text(produto.categoria || "Cardapio"),
+                        $("<strong>").text(moeda.format(Number(produto.preco || 0)))
+                    ),
+                    $("<div>", { class: "product-actions" }).append(
+                        $quantidade,
+                        $("<button>", {
+                            type: "button",
+                            class: "primary-action"
+                        })
+                            .text("Adicionar")
+                            .on("click", function () {
+                                adicionarAoCarrinho(produto, Number($quantidade.val()));
+                            })
+                    )
+                )
+                .appendTo(elementos.$produtosLista);
         });
-    }
+    };
 
-    function adicionarAoCarrinho(produto, quantidade) {
-        const mensagem = document.getElementById("pedidoMensagem");
-        mensagem.textContent = "";
-        mensagem.className = "message";
+    var adicionarAoCarrinho = function (produto, quantidade) {
+        var elementos = obterElementos();
+
+        elementos.$pedidoMensagem
+            .text("")
+            .attr("class", "message");
 
         if (!quantidade || quantidade <= 0) {
-            mensagem.className = "message error";
-            mensagem.textContent = "Quantidade deve ser maior que zero.";
+            elementos.$pedidoMensagem
+                .attr("class", "message error")
+                .text("Quantidade deve ser maior que zero.");
             return;
         }
 
-        const item = carrinho.find((atual) => atual.produto.id === produto.id);
+        var item = carrinho.find(function (atual) {
+            return atual.produto.id === produto.id;
+        });
 
         if (item) {
             item.quantidade += quantidade;
         } else {
-            carrinho.push({ produto, quantidade });
+            carrinho.push({ produto: produto, quantidade: quantidade });
         }
 
         renderCarrinho();
-    }
+    };
 
-    function renderCarrinho() {
-        const lista = document.getElementById("carrinhoLista");
-        const estado = document.getElementById("carrinhoEstado");
-        const total = carrinho.reduce((soma, item) => soma + Number(item.produto.preco || 0) * item.quantidade, 0);
+    var renderCarrinho = function () {
+        var elementos = obterElementos();
+        var total = carrinho.reduce(function (soma, item) {
+            return soma + Number(item.produto.preco || 0) * item.quantidade;
+        }, 0);
 
-        lista.innerHTML = "";
-        document.getElementById("pedidoTotal").textContent = moeda.format(total);
+        elementos.$carrinhoLista.empty();
+        elementos.$pedidoTotal.text(moeda.format(total));
 
         if (!carrinho.length) {
-            estado.hidden = false;
-            estado.textContent = "Nenhum item adicionado.";
+            elementos.$carrinhoEstado
+                .prop("hidden", false)
+                .text("Nenhum item adicionado.");
             return;
         }
 
-        estado.hidden = true;
+        elementos.$carrinhoEstado.prop("hidden", true);
 
-        carrinho.forEach((item, index) => {
-            const row = document.createElement("div");
-            const info = document.createElement("div");
-            const nome = document.createElement("strong");
-            const detalhes = document.createElement("span");
-            const remover = document.createElement("button");
-            const subtotal = Number(item.produto.preco || 0) * item.quantidade;
+        carrinho.forEach(function (item, index) {
+            var subtotal = Number(item.produto.preco || 0) * item.quantidade;
 
-            row.className = "cart-item";
-            nome.textContent = item.produto.nome;
-            detalhes.textContent = `${item.quantidade} x ${moeda.format(Number(item.produto.preco || 0))} = ${moeda.format(subtotal)}`;
-            remover.type = "button";
-            remover.className = "cart-remove";
-            remover.textContent = "Remover";
-            remover.addEventListener("click", () => {
-                carrinho.splice(index, 1);
-                renderCarrinho();
-            });
-
-            info.append(nome, detalhes);
-            row.append(info, remover);
-            lista.appendChild(row);
+            $("<div>", { class: "cart-item" })
+                .append(
+                    $("<div>").append(
+                        $("<strong>").text(item.produto.nome),
+                        $("<span>").text(item.quantidade + " x " + moeda.format(Number(item.produto.preco || 0)) + " = " + moeda.format(subtotal))
+                    ),
+                    $("<button>", {
+                        type: "button",
+                        class: "cart-remove"
+                    })
+                        .text("Remover")
+                        .on("click", function () {
+                            carrinho.splice(index, 1);
+                            renderCarrinho();
+                        })
+                )
+                .appendTo(elementos.$carrinhoLista);
         });
-    }
+    };
 
-    async function enviarPedido(event) {
+    var enviarPedido = async function (event) {
         event.preventDefault();
 
-        const mensagem = document.getElementById("pedidoMensagem");
-        const button = event.target.querySelector("button[type='submit']");
+        var elementos = obterElementos();
+        var $button = $(event.currentTarget).find("button[type='submit']");
 
-        mensagem.textContent = "";
-        mensagem.className = "message";
+        elementos.$pedidoMensagem
+            .text("")
+            .attr("class", "message");
 
         if (!carrinho.length) {
-            mensagem.className = "message error";
-            mensagem.textContent = "Adicione ao menos um item.";
+            elementos.$pedidoMensagem
+                .attr("class", "message error")
+                .text("Adicione ao menos um item.");
             return;
         }
 
-        button.disabled = true;
-        button.textContent = "Enviando...";
+        $button
+            .prop("disabled", true)
+            .text("Enviando...");
 
         try {
-            const pedido = await ClienteApi.fazerPedido({
-                formaPagamento: document.getElementById("formaPagamento").value || null,
-                observacao: document.getElementById("observacao").value.trim() || null,
-                itens: carrinho.map((item) => ({
-                    quantidade: item.quantidade,
-                    produtoId: item.produto.id
-                }))
+            var pedido = await ClienteApi.fazerPedido({
+                formaPagamento: elementos.$formaPagamento.val() || null,
+                observacao: (elementos.$observacao.val() || "").trim() || null,
+                itens: carrinho.map(function (item) {
+                    return {
+                        quantidade: item.quantidade,
+                        produtoId: item.produto.id
+                    };
+                })
             });
 
             carrinho = [];
             renderCarrinho();
-            document.getElementById("pedidoForm").reset();
-            mensagem.className = "message success";
-            mensagem.textContent = `Pedido #${pedido.id} enviado com sucesso.`;
+            elementos.$form[0].reset();
+            elementos.$pedidoMensagem
+                .attr("class", "message success")
+                .text("Pedido #" + pedido.id + " enviado com sucesso.");
         } catch (error) {
-            mensagem.className = "message error";
-            mensagem.textContent = error.message;
+            elementos.$pedidoMensagem
+                .attr("class", "message error")
+                .text(error.message);
         } finally {
-            button.disabled = false;
-            button.textContent = "Fazer pedido";
+            $button
+                .prop("disabled", false)
+                .text("Fazer pedido");
         }
-    }
+    };
 
-    async function sair() {
+    var sair = async function () {
         try {
             await ClienteApi.logout();
         } finally {
             window.location.href = "/index.html";
         }
-    }
-})();
+    };
+
+    var init = function () {
+        bindEventos();
+        iniciar();
+    };
+
+    return {
+        init: init,
+        obterElementos: obterElementos,
+        bindEventos: bindEventos,
+        iniciar: iniciar,
+        carregarCardapio: carregarCardapio,
+        renderProdutos: renderProdutos,
+        adicionarAoCarrinho: adicionarAoCarrinho,
+        renderCarrinho: renderCarrinho,
+        enviarPedido: enviarPedido,
+        sair: sair
+    };
+}());

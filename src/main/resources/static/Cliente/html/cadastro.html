@@ -5,8 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastro de cliente - Sistema Pastelaria</title>
     <link rel="stylesheet" href="/Cliente/css/cliente.css">
+    <script src="/vendor/jquery/jquery-4.0.0.slim.min.js" defer></script>
     <script src="/Cliente/js/cliente-api.js" defer></script>
     <script src="/Cliente/js/cadastro.js" defer></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            $(CadastroCliente.init);
+        });
+    </script>
 </head>
 <body class="auth-page">
     <main class="auth-shell">

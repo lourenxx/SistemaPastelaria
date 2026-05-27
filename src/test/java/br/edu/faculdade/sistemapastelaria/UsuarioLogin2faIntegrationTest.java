@@ -58,6 +58,10 @@ class UsuarioLogin2faIntegrationTest {
 
     @Test
     void deveExigirCodigoDeEmailAntesDeLiberarPaginaProtegida() throws Exception {
+        mockMvc.perform(get("/vendor/jquery/jquery-4.0.0.slim.min.js"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("jQuery")));
+
         mockMvc.perform(get("/Admin/html/dashboard.html"))
                 .andExpect(status().isUnauthorized());
 

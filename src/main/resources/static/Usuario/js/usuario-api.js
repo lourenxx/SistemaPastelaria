@@ -1,4 +1,4 @@
-var ClienteApi = (function () {
+var UsuarioApi = (function () {
     var ApiError = class ApiError extends Error {
         constructor(message, status) {
             super(message);
@@ -12,7 +12,6 @@ var ClienteApi = (function () {
             Accept: "application/json",
             ...(options.headers || {})
         };
-
         var config = {
             method: options.method || "GET",
             credentials: "same-origin",
@@ -26,21 +25,19 @@ var ClienteApi = (function () {
 
         var response = await fetch(path, config);
 
-        if (response.status === 401 && !options.noRedirect) {
-            window.location.href = "/Cliente/html/login.html";
-            throw new ApiError("Sessao expirada. Faca login novamente.", 401);
+        if (!response.ok) {
+            throw new ApiError(await readError(response, options.fallback), response.status);
         }
 
-        if (!response.ok) {
-            throw new ApiError(await readError(response), response.status);
+        if (response.status === 204) {
+            return null;
         }
 
         var text = await response.text();
         return text ? JSON.parse(text) : null;
     };
 
-    var readError = async function (response) {
-        var fallback = "Nao foi possivel concluir a operacao.";
+    var readError = async function (response, fallback = "Nao foi possivel concluir a operacao.") {
         var text = await response.text();
 
         if (!text) {
@@ -57,23 +54,19 @@ var ClienteApi = (function () {
 
     return {
         ApiError: ApiError,
-        sessao: function () {
-            return request("/sessao");
-        },
-        logout: function () {
-            return request("/sessao/logout", { method: "POST" });
-        },
         login: function (credenciais) {
-            return request("/clientes/login", { method: "POST", body: credenciais, noRedirect: true });
+            return request("/usuarios/login", {
+                method: "POST",
+                body: credenciais,
+                fallback: "Login ou senha invalidos."
+            });
         },
-        cadastro: function (cliente) {
-            return request("/clientes/cadastro", { method: "POST", body: cliente, noRedirect: true });
-        },
-        cardapio: function () {
-            return request("/produtos/cardapio");
-        },
-        fazerPedido: function (pedido) {
-            return request("/clientes/me/pedidos", { method: "POST", body: pedido });
+        verificarCodigo: function (codigo) {
+            return request("/usuarios/login/verificar-codigo", {
+                method: "POST",
+                body: { codigo: codigo },
+                fallback: "Codigo invalido."
+            });
         }
     };
 }());

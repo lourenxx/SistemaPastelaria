@@ -1,10 +1,29 @@
-(function () {
-    document.addEventListener("DOMContentLoaded", () => {
-        const clienteButton = document.getElementById("clienteButton");
-        const clienteOptions = document.getElementById("clienteOptions");
+var AcessoInicial = (function () {
+    var obterElementos = function () {
+        return {
+            $clienteButton: $("#clienteButton"),
+            $clienteOptions: $("#clienteOptions")
+        };
+    };
 
-        clienteButton.addEventListener("click", () => {
-            clienteOptions.hidden = !clienteOptions.hidden;
-        });
-    });
-})();
+    var bindEventos = function () {
+        obterElementos().$clienteButton.on("click", alternarOpcoesCliente);
+    };
+
+    var alternarOpcoesCliente = function () {
+        var elementos = obterElementos();
+
+        elementos.$clienteOptions.prop("hidden", !elementos.$clienteOptions.prop("hidden"));
+    };
+
+    var init = function () {
+        bindEventos();
+    };
+
+    return {
+        init: init,
+        obterElementos: obterElementos,
+        bindEventos: bindEventos,
+        alternarOpcoesCliente: alternarOpcoesCliente
+    };
+}());
