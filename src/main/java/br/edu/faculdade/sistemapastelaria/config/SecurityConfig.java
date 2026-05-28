@@ -31,6 +31,7 @@ public class SecurityConfig {
                 .requestMatchers("/h2-console/**").permitAll()
                 .requestMatchers("/h2-console").permitAll()
                 .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/usuarios").permitAll()
                 .requestMatchers(HttpMethod.POST, "/usuarios/login", "/usuarios/login/verificar-codigo").permitAll()
                 .requestMatchers(HttpMethod.POST, "/clientes/cadastro", "/clientes/login").permitAll()
                 .requestMatchers("/Admin/**").hasRole("INTERNO")
