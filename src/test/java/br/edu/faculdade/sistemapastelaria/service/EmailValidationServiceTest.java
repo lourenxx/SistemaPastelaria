@@ -3,10 +3,14 @@ package br.edu.faculdade.sistemapastelaria.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -23,6 +27,11 @@ class EmailValidationServiceTest {
     @Autowired
     private ClienteService clienteService;
 
+    @AfterEach
+    void limparContextoSeguranca() {
+        SecurityContextHolder.clearContext();
+    }
+
     @Test
     void deveNormalizarEmailDeUsuarioEBarrarDuplicado() {
         UsuarioDTO usuario = usuarioService.salvarUsuario(new UsuarioDTO(
@@ -33,6 +42,7 @@ class EmailValidationServiceTest {
                 "123456"));
 
         assertEquals("admin@email.com", usuario.getEmail());
+        autenticarUsuarioInterno();
 
         ResponseStatusException exception = assertThrows(
                 ResponseStatusException.class,
@@ -44,6 +54,13 @@ class EmailValidationServiceTest {
                         "123456")));
 
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+    }
+
+    private void autenticarUsuarioInterno() {
+        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(
+                "admin",
+                null,
+                AuthorityUtils.createAuthorityList("ROLE_INTERNO")));
     }
 
     @Test

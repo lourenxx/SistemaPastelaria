@@ -1,39 +1,67 @@
-(function () {
-    document.addEventListener("DOMContentLoaded", () => {
-        document.getElementById("clienteCadastroForm").addEventListener("submit", cadastrar);
-    });
+var CadastroCliente = (function () {
+    var obterElementos = function () {
+        return {
+            $form: $("#clienteCadastroForm"),
+            $mensagem: $("#mensagemCadastro"),
+            $nome: $("#nome"),
+            $telefone: $("#telefone"),
+            $endereco: $("#endereco"),
+            $email: $("#email"),
+            $senha: $("#senha")
+        };
+    };
 
-    async function cadastrar(event) {
+    var bindEventos = function () {
+        obterElementos().$form.on("submit", cadastrar);
+    };
+
+    var cadastrar = async function (event) {
         event.preventDefault();
 
-        const mensagem = document.getElementById("mensagemCadastro");
-        const button = event.target.querySelector("button[type='submit']");
+        var elementos = obterElementos();
+        var $button = $(event.currentTarget).find("button[type='submit']");
 
-        mensagem.textContent = "";
-        mensagem.className = "message";
-        button.disabled = true;
-        button.textContent = "Cadastrando...";
+        elementos.$mensagem
+            .text("")
+            .attr("class", "message");
+        $button
+            .prop("disabled", true)
+            .text("Cadastrando...");
 
         try {
             await ClienteApi.cadastro({
-                nome: document.getElementById("nome").value.trim(),
-                telefone: document.getElementById("telefone").value.trim(),
-                endereco: document.getElementById("endereco").value.trim(),
-                email: document.getElementById("email").value.trim(),
-                senha: document.getElementById("senha").value
+                nome: (elementos.$nome.val() || "").trim(),
+                telefone: (elementos.$telefone.val() || "").trim(),
+                endereco: (elementos.$endereco.val() || "").trim(),
+                email: (elementos.$email.val() || "").trim(),
+                senha: elementos.$senha.val()
             });
 
-            mensagem.className = "message success";
-            mensagem.textContent = "Cadastro realizado. Redirecionando para o login...";
-            window.setTimeout(() => {
+            elementos.$mensagem
+                .attr("class", "message success")
+                .text("Cadastro realizado. Redirecionando para o login...");
+            window.setTimeout(function () {
                 window.location.href = "/Cliente/html/login.html";
             }, 900);
         } catch (error) {
-            mensagem.className = "message error";
-            mensagem.textContent = error.message;
+            elementos.$mensagem
+                .attr("class", "message error")
+                .text(error.message);
         } finally {
-            button.disabled = false;
-            button.textContent = "Cadastrar cliente";
+            $button
+                .prop("disabled", false)
+                .text("Cadastrar cliente");
         }
-    }
-})();
+    };
+
+    var init = function () {
+        bindEventos();
+    };
+
+    return {
+        init: init,
+        obterElementos: obterElementos,
+        bindEventos: bindEventos,
+        cadastrar: cadastrar
+    };
+}());

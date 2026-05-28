@@ -25,11 +25,13 @@ public class SecurityConfig {
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/", "/index.html", "/error").permitAll()
+                .requestMatchers("/vendor/**").permitAll()
                 .requestMatchers("/Usuario/html/login.html", "/Usuario/html/sucesso.html", "/Usuario/css/**", "/Usuario/js/**").permitAll()
                 .requestMatchers("/Cliente/html/login.html", "/Cliente/html/cadastro.html", "/Cliente/css/**", "/Cliente/js/**").permitAll()
                 .requestMatchers("/h2-console/**").permitAll()
                 .requestMatchers("/h2-console").permitAll()
                 .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/usuarios").permitAll()
                 .requestMatchers(HttpMethod.POST, "/usuarios/login", "/usuarios/login/verificar-codigo").permitAll()
                 .requestMatchers(HttpMethod.POST, "/clientes/cadastro", "/clientes/login").permitAll()
                 .requestMatchers("/Admin/**").hasRole("INTERNO")

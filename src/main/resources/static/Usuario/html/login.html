@@ -5,7 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login interno - Sistema Pastelaria</title>
     <link rel="stylesheet" href="../css/login.css">
+    <script src="/vendor/jquery/jquery-4.0.0.slim.min.js" defer></script>
+    <script src="../js/usuario-api.js" defer></script>
     <script src="../js/login.js" defer></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            $(LoginUsuario.init);
+        });
+    </script>
 </head>
 <body>
     <main class="login-container">

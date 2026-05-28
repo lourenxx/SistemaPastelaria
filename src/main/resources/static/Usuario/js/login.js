@@ -1,91 +1,86 @@
-const formLogin = document.getElementById("formLogin");
-const botaoEntrar = document.getElementById("botaoEntrar");
-const mensagemErro = document.getElementById("mensagemErro");
-const camposCredenciais = document.getElementById("camposCredenciais");
-const campoCodigo = document.getElementById("campoCodigo");
-const emailDestino = document.getElementById("emailDestino");
-const codigo = document.getElementById("codigo");
+var LoginUsuario = (function () {
+    var etapa = "credenciais";
 
-let etapa = "credenciais";
+    var obterElementos = function () {
+        return {
+            $form: $("#formLogin"),
+            $botaoEntrar: $("#botaoEntrar"),
+            $mensagemErro: $("#mensagemErro"),
+            $login: $("#login"),
+            $senha: $("#senha"),
+            $camposCredenciais: $("#camposCredenciais"),
+            $campoCodigo: $("#campoCodigo"),
+            $codigo: $("#codigo"),
+            $emailDestino: $("#emailDestino")
+        };
+    };
 
-formLogin.addEventListener("submit", async (event) => {
-    event.preventDefault();
+    var bindEventos = function () {
+        obterElementos().$form.on("submit", enviarFormulario);
+    };
 
-    mensagemErro.textContent = "";
-    botaoEntrar.disabled = true;
-    botaoEntrar.textContent = etapa === "credenciais" ? "Enviando codigo..." : "Verificando...";
+    var enviarFormulario = async function (event) {
+        event.preventDefault();
 
-    try {
-        if (etapa === "credenciais") {
-            await enviarCredenciais();
-            return;
+        var elementos = obterElementos();
+
+        elementos.$mensagemErro.text("");
+        elementos.$botaoEntrar
+            .prop("disabled", true)
+            .text(etapa === "credenciais" ? "Enviando codigo..." : "Verificando...");
+
+        try {
+            if (etapa === "credenciais") {
+                await enviarCredenciais();
+                return;
+            }
+
+            await verificarCodigo();
+        } catch (error) {
+            elementos.$mensagemErro.text(error.message);
+        } finally {
+            elementos.$botaoEntrar
+                .prop("disabled", false)
+                .text(etapa === "credenciais" ? "Entrar" : "Verificar codigo");
         }
+    };
 
-        await verificarCodigo();
-    } catch (error) {
-        mensagemErro.textContent = error.message;
-    } finally {
-        botaoEntrar.disabled = false;
-        botaoEntrar.textContent = etapa === "credenciais" ? "Entrar" : "Verificar codigo";
-    }
-});
+    var enviarCredenciais = async function () {
+        var elementos = obterElementos();
+        var dados = await UsuarioApi.login({
+            login: elementos.$login.val(),
+            senha: elementos.$senha.val()
+        });
 
-async function enviarCredenciais() {
-    const resposta = await fetch("/usuarios/login", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            login: document.getElementById("login").value,
-            senha: document.getElementById("senha").value
-        })
-    });
+        etapa = "codigo";
+        elementos.$camposCredenciais.prop("hidden", true);
+        elementos.$campoCodigo.prop("hidden", false);
+        elementos.$codigo
+            .prop("required", true)
+            .val("")
+            .trigger("focus");
+        elementos.$emailDestino.text(dados.emailMascarado
+            ? "Codigo enviado para " + dados.emailMascarado + "."
+            : "Codigo enviado para o email cadastrado.");
+    };
 
-    if (!resposta.ok) {
-        throw new Error(await lerMensagemErro(resposta, "Login ou senha invalidos."));
-    }
+    var verificarCodigo = async function () {
+        var elementos = obterElementos();
 
-    const dados = await resposta.json();
-    etapa = "codigo";
-    camposCredenciais.hidden = true;
-    campoCodigo.hidden = false;
-    codigo.required = true;
-    codigo.value = "";
-    emailDestino.textContent = dados.emailMascarado
-        ? `Codigo enviado para ${dados.emailMascarado}.`
-        : "Codigo enviado para o email cadastrado.";
-    codigo.focus();
-}
+        await UsuarioApi.verificarCodigo(elementos.$codigo.val());
+        window.location.href = "/Admin/html/dashboard.html";
+    };
 
-async function verificarCodigo() {
-    const resposta = await fetch("/usuarios/login/verificar-codigo", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            codigo: codigo.value
-        })
-    });
+    var init = function () {
+        bindEventos();
+    };
 
-    if (!resposta.ok) {
-        throw new Error(await lerMensagemErro(resposta, "Codigo invalido."));
-    }
-
-    window.location.href = "/Admin/html/dashboard.html";
-}
-
-async function lerMensagemErro(resposta, mensagemPadrao) {
-    const texto = await resposta.text();
-    if (!texto) {
-        return mensagemPadrao;
-    }
-
-    try {
-        const dados = JSON.parse(texto);
-        return dados.detail || dados.message || mensagemPadrao;
-    } catch (error) {
-        return mensagemPadrao;
-    }
-}
+    return {
+        init: init,
+        obterElementos: obterElementos,
+        bindEventos: bindEventos,
+        enviarFormulario: enviarFormulario,
+        enviarCredenciais: enviarCredenciais,
+        verificarCodigo: verificarCodigo
+    };
+}());

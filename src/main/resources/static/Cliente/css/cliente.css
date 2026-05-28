@@ -135,6 +135,12 @@ a {
     cursor: pointer;
 }
 
+.choice-button {
+    border: 1px solid #b8d7e6;
+    box-shadow: 0 2px 0 rgba(36, 52, 71, 0.06);
+    transition: background 140ms ease, border-color 140ms ease, box-shadow 140ms ease, transform 140ms ease;
+}
+
 .choice-button,
 .secondary-action {
     background: #e6f7fd;
@@ -147,6 +153,28 @@ a {
     color: #3d2f10;
 }
 
+.choice-client {
+    background: #155e75;
+    border-color: #0e5368;
+    color: #ffffff;
+}
+
+.choice-secondary {
+    background: #edf7fb;
+    border-color: #b8d7e6;
+    color: #155e75;
+}
+
+.choice-internal {
+    background: #f5f7fa;
+    border-color: #ccd6e2;
+    color: #344054;
+}
+
+.choice-primary {
+    border-color: #d99a18;
+}
+
 .choice-button:hover,
 .choice-button:focus,
 .primary-action:hover,
@@ -154,6 +182,32 @@ a {
 .secondary-action:hover,
 .secondary-action:focus {
     outline: 3px solid var(--focus);
+}
+
+.choice-button:hover,
+.choice-button:focus {
+    box-shadow: 0 8px 18px rgba(36, 52, 71, 0.12);
+    transform: translateY(-1px);
+}
+
+.choice-client:hover,
+.choice-client:focus {
+    background: #0e5368;
+}
+
+.choice-primary:hover,
+.choice-primary:focus {
+    background: #e6ac28;
+}
+
+.choice-secondary:hover,
+.choice-secondary:focus {
+    background: #dff0f8;
+}
+
+.choice-internal:hover,
+.choice-internal:focus {
+    background: #edf1f6;
 }
 
 .stack-form {

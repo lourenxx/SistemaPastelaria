@@ -5,10 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Sistema Pastelaria</title>
     <link rel="stylesheet" href="../css/admin.css">
+    <script src="/vendor/jquery/jquery-4.0.0.slim.min.js" defer></script>
     <script src="../js/api.js" defer></script>
     <script src="../js/utils.js" defer></script>
     <script src="../js/layout.js" defer></script>
     <script src="../js/dashboard.js" defer></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            $(AdminLayout.init);
+            $(Dashboard.init);
+        });
+    </script>
 </head>
 <body data-page="dashboard" data-title="Dashboard" data-subtitle="Resumo operacional">
     <div class="admin-shell">
